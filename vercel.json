@@ -1,15 +1,15 @@
 {
-  "version": 2,
+  "version": 1,
   "builds": [
     {
-      "src": "wsgi.py",
+      "src": "ixova/wsgi.py",
       "use": "@vercel/python"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "wsgi.py"
+      "dest": "ixova/wsgi.py"
     }
   ]
 }
