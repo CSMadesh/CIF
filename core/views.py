@@ -47,9 +47,13 @@ def register_view(request):
         email = request.POST['email']
         password = request.POST['password']
         first_name = request.POST.get('first_name', '')
+        form_data = {'username': username, 'email': email, 'first_name': first_name}
         if User.objects.filter(username=username).exists():
-            messages.error(request, 'Username already taken.')
-            return render(request, 'register.html')
+            messages.error(request, 'Username already taken. Please choose a different one.')
+            return render(request, 'register.html', {'form_data': form_data})
+        if User.objects.filter(email=email).exists():
+            messages.error(request, 'An account with this email already exists.')
+            return render(request, 'register.html', {'form_data': form_data})
         user = User.objects.create_user(username=username, email=email, password=password, first_name=first_name)
         Profile.objects.create(user=user, ai_score=42)
         login(request, user)

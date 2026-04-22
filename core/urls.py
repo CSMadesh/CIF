@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .upload_views import upload_image, upload_test_page
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -13,6 +14,9 @@ urlpatterns = [
     path('apply/<int:pk>/', views.apply_opportunity, name='apply'),
     path('save/<int:pk>/', views.save_opportunity, name='save'),
     path('saved/', views.saved_opportunities, name='saved'),
+    # Upload
+    path('upload-image/', upload_image, name='upload_image'),
+    path('upload-test/', upload_test_page, name='upload_test'),
     # Sub-Admin
     path('subadmin/', views.subadmin_dashboard, name='subadmin_dashboard'),
     path('subadmin/users/', views.subadmin_users, name='subadmin_users'),

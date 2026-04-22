@@ -1,11 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from cloudinary.models import CloudinaryField
 
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
+    avatar = CloudinaryField('avatar', folder='avatars', blank=True, null=True)
     bio = models.TextField(blank=True)
     skills = models.CharField(max_length=500, blank=True)
     ai_score = models.IntegerField(default=0)
@@ -25,8 +26,8 @@ class Course(models.Model):
     description = models.TextField()
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
     duration = models.CharField(max_length=50)
-    thumbnail = models.ImageField(upload_to='courses/', blank=True, null=True)
-    video = models.FileField(upload_to='course_videos/', blank=True, null=True)
+    thumbnail = CloudinaryField('thumbnail', folder='course_thumbnails', blank=True, null=True)
+    video = CloudinaryField('video', folder='course_videos', resource_type='video', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     is_premium = models.BooleanField(default=False)
 
