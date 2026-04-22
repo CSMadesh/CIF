@@ -78,8 +78,10 @@
   flex:1; padding:11px 16px;
   border:1.5px solid var(--border-2);
   border-radius:24px; font-size:14px;
-  background:var(--bg-2); color:var(--text); outline:none;
+  background:#fff; color:#1a1208; outline:none;
+  -webkit-text-fill-color:#1a1208;
 }
+.chat-input::placeholder { color:#7a6548; opacity:1; }
 .chat-input:focus { border-color:var(--gold); box-shadow:0 0 0 3px rgba(201,168,76,0.12); }
 
 .chat-send-btn {
