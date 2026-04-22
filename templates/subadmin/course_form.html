@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} Course – IXOVA{% endblock %}
+{% block content %}
+
+<div class="topbar">
+  <div class="topbar-greeting">
+    <h1>{{ action }} Course 📚</h1>
+    <p>{% if action == 'Edit' %}Update course details and video{% else %}Fill in the details to add a new course{% endif %}</p>
+  </div>
+  <div class="topbar-actions">
+    <a href="{% url 'subadmin_courses' %}" class="btn btn-secondary">← Back</a>
+  </div>
+</div>
+
+<div class="card fade-up" style="max-width:680px">
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="form-group">
+      <label class="form-label">Course Title</label>
+      <input type="text" name="title" class="form-control" placeholder="e.g. Python for Beginners" value="{{ course.title|default:'' }}" required>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <textarea name="description" class="form-control" placeholder="What will students learn?" rows="4" required>{{ course.description|default:'' }}</textarea>
+    </div>
+
+    <div class="two-col" style="gap:16px">
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <select name="category" class="form-control" required>
+          <option value="">Select category</option>
+          <option value="tech" {% if course.category == 'tech' %}selected{% endif %}>Technology</option>
+          <option value="business" {% if course.category == 'business' %}selected{% endif %}>Business</option>
+          <option value="freelancing" {% if course.category == 'freelancing' %}selected{% endif %}>Freelancing</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Duration</label>
+        <input type="text" name="duration" class="form-control" placeholder="e.g. 4 hours" value="{{ course.duration|default:'' }}" required>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Thumbnail Image <span style="color:var(--text-3);font-weight:400">(optional)</span></label>
+      <input type="file" name="thumbnail" class="form-control" accept="image/*">
+      {% if course.thumbnail %}
+        <div style="margin-top:8px;display:flex;align-items:center;gap:10px">
+          <img src="{{ course.thumbnail.url }}" style="width:80px;height:50px;object-fit:cover;border-radius:8px;border:1px solid var(--border)">
+          <span style="font-size:12px;color:var(--text-3)">Current thumbnail</span>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Video Upload Section -->
+    <div class="form-group video-upload-section">
+      <label class="form-label">Course Video <span style="color:var(--text-3);font-weight:400">(MP4, WebM, MOV)</span></label>
+      <div class="video-drop-zone" id="videoDropZone">
+        <div class="video-drop-icon">🎬</div>
+        <div class="video-drop-text">Drag & drop your video here or <label for="videoInput" class="video-browse-link">browse</label></div>
+        <div class="video-drop-hint">Supports MP4, WebM, MOV · Max 500MB</div>
+        <input type="file" name="video" id="videoInput" accept="video/mp4,video/webm,video/quicktime" style="display:none">
+      </div>
+
+      {% if course.video %}
+      <div class="current-video-wrap">
+        <div style="font-size:13px;font-weight:600;margin-bottom:8px;color:var(--text-2)">Current Video</div>
+        <video controls style="width:100%;border-radius:10px;border:1px solid var(--border);background:#000">
+          <source src="{{ course.video.url }}">
+          Your browser does not support the video tag.
+        </video>
+        <p style="font-size:12px;color:var(--text-3);margin-top:6px">Upload a new file above to replace it.</p>
+      </div>
+      {% endif %}
+
+      <div class="video-preview-wrap" id="videoPreviewWrap" style="display:none">
+        <div style="font-size:13px;font-weight:600;margin-bottom:8px;color:var(--text-2)">Preview</div>
+        <video id="videoPreview" controls style="width:100%;border-radius:10px;border:1px solid var(--border);background:#000"></video>
+        <div id="videoFileName" style="font-size:12px;color:var(--text-3);margin-top:6px"></div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+        <input type="checkbox" name="is_premium" {% if course.is_premium %}checked{% endif %}
+               style="width:16px;height:16px;accent-color:var(--blue)">
+        <span class="form-label" style="margin:0">Mark as Premium ⭐</span>
+      </label>
+    </div>
+
+    <div style="display:flex;gap:12px;margin-top:8px">
+      <button type="submit" class="btn btn-primary">{{ action }} Course</button>
+      <a href="{% url 'subadmin_courses' %}" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+
+<style>
+.video-upload-section { margin-bottom: 20px; }
+
+.video-drop-zone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 36px 24px;
+  text-align: center;
+  background: var(--bg-2);
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+}
+.video-drop-zone:hover,
+.video-drop-zone.drag-over {
+  border-color: var(--blue);
+  background: rgba(0,122,255,0.04);
+  box-shadow: 0 0 0 3px rgba(0,122,255,0.1);
+}
+.video-drop-icon { font-size: 40px; margin-bottom: 10px; }
+.video-drop-text { font-size: 14px; color: var(--text-2); margin-bottom: 6px; }
+.video-browse-link {
+  color: var(--blue); font-weight: 600; cursor: pointer;
+  text-decoration: underline;
+}
+.video-drop-hint { font-size: 12px; color: var(--text-3); }
+
+.current-video-wrap,
+.video-preview-wrap {
+  margin-top: 14px;
+  padding: 16px;
+  background: var(--bg-2);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+</style>
+
+<script>
+const dropZone   = document.getElementById('videoDropZone');
+const fileInput  = document.getElementById('videoInput');
+const previewWrap = document.getElementById('videoPreviewWrap');
+const preview    = document.getElementById('videoPreview');
+const fileName   = document.getElementById('videoFileName');
+
+dropZone.addEventListener('click', () => fileInput.click());
+
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) setVideo(file);
+});
+
+fileInput.addEventListener('change', () => {
+  if (fileInput.files[0]) setVideo(fileInput.files[0]);
+});
+
+function setVideo(file) {
+  const dt = new DataTransfer();
+  dt.items.add(file);
+  fileInput.files = dt.files;
+
+  const url = URL.createObjectURL(file);
+  preview.src = url;
+  fileName.textContent = `📁 ${file.name} (${(file.size / 1024 / 1024).toFixed(1)} MB)`;
+  previewWrap.style.display = 'block';
+
+  dropZone.querySelector('.video-drop-text').innerHTML =
+    `✅ <strong>${file.name}</strong> selected`;
+}
+</script>
+
+{% endblock %}

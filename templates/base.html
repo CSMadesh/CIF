@@ -1,0 +1,112 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}IXOVA{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
+</head>
+<body>
+
+{% if user.is_authenticated %}
+<!-- Mobile topbar -->
+<div class="mobile-topbar">
+  <div class="sidebar-logo" style="padding:0">IX<span>OVA</span></div>
+  <button class="hamburger" id="hamburgerBtn" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</div>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">IX<span>OVA</span></div>
+
+  <div class="nav-section">
+    <div class="nav-label">Main</div>
+    <a href="{% url 'dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+      <span class="icon">⊞</span> Overview
+    </a>
+    <a href="{% url 'discover' %}" class="nav-item {% if request.resolver_match.url_name == 'discover' %}active{% endif %}">
+      <span class="icon">🔍</span> Discover
+    </a>
+    <a href="{% url 'profile' %}" class="nav-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+      <span class="icon">📁</span> My Profile
+    </a>
+    <a href="{% url 'ai_tools' %}" class="nav-item {% if request.resolver_match.url_name == 'ai_tools' %}active{% endif %}">
+      <span class="icon">🤖</span> AI Tools
+    </a>
+    <a href="{% url 'chat' %}" class="nav-item {% if request.resolver_match.url_name == 'chat' %}active{% endif %}">
+      <span class="icon">💬</span> AI Chat
+    </a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Opportunities</div>
+    <a href="{% url 'saved' %}" class="nav-item {% if request.resolver_match.url_name == 'saved' %}active{% endif %}">
+      <span class="icon">🔖</span> Saved
+    </a>
+    <a href="{% url 'profile' %}" class="nav-item">
+      <span class="icon">✅</span> Applications
+    </a>
+  </div>
+
+  {% if user.is_superuser or user.sub_admin.is_active %}
+  <div class="nav-section">
+    <div class="nav-label">Admin</div>
+    <a href="{% url 'subadmin_dashboard' %}" class="nav-item {% if 'subadmin' in request.resolver_match.url_name %}active{% endif %}">
+      <span class="icon">🛡️</span> Sub-Admin Panel
+    </a>
+    {% if user.is_superuser %}
+    <a href="{% url 'subadmin_manage' %}" class="nav-item {% if request.resolver_match.url_name == 'subadmin_manage' %}active{% endif %}">
+      <span class="icon">👥</span> Manage Sub-Admins
+    </a>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <div class="sidebar-footer nav-section">
+    <div class="nav-label">Account</div>
+    <a href="{% url 'profile' %}" class="nav-item">
+      <span class="icon">⚙️</span> Settings
+    </a>
+    <a href="{% url 'logout' %}" class="nav-item">
+      <span class="icon">🚪</span> Log Out
+    </a>
+  </div>
+</aside>
+{% endif %}
+
+<main class="{% if user.is_authenticated %}main{% endif %}">
+  {% if messages %}
+    {% for msg in messages %}
+      <div class="alert alert-{% if msg.tags == 'error' %}error{% elif msg.tags == 'success' %}success{% else %}info{% endif %}">
+        {{ msg }}
+      </div>
+    {% endfor %}
+  {% endif %}
+  {% block content %}{% endblock %}
+</main>
+
+{% if user.is_authenticated %}
+<script>
+  const IXOVA_CHAT_API   = "{% url 'chat_api' %}";
+  const IXOVA_CSRF       = "{{ csrf_token }}";
+  const IXOVA_USER_INITIAL = "{{ user.first_name|first|upper|default:user.username|first|upper }}";
+</script>
+<script src="{% static 'js/chat.js' %}"></script>
+<script>
+  const btn     = document.getElementById('hamburgerBtn');
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  function openSidebar()  { sidebar.classList.add('open'); overlay.classList.add('show'); btn.classList.add('active'); }
+  function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('show'); btn.classList.remove('active'); }
+  btn.addEventListener('click', () => sidebar.classList.contains('open') ? closeSidebar() : openSidebar());
+  overlay.addEventListener('click', closeSidebar);
+  document.querySelectorAll('.nav-item').forEach(el => el.addEventListener('click', closeSidebar));
+</script>
+{% endif %}
+
+</body>
+</html>

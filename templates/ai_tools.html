@@ -1,0 +1,387 @@
+{% extends 'base.html' %}
+{% block title %}AI Tools – IXOVA{% endblock %}
+{% block content %}
+
+<div class="topbar">
+  <div class="topbar-greeting">
+    <h1>AI Tools 🤖</h1>
+    <p>Smart guidance to accelerate your growth</p>
+  </div>
+</div>
+
+<!-- Score Row -->
+<div class="ai-top-row fade-up fade-up-1">
+
+  <!-- AI Score Card -->
+  <div class="card ai-score-main">
+    <div class="ai-score-header">
+      <div>
+        <h3 style="font-size:17px;font-weight:700;margin-bottom:4px">🎯 AI Growth Score</h3>
+        <p style="font-size:13px;color:var(--text-3)">Based on your profile & activity</p>
+      </div>
+      <div class="ai-score-badge
+        {% if profile.ai_score >= 80 %}badge-score-gold
+        {% elif profile.ai_score >= 60 %}badge-score-blue
+        {% elif profile.ai_score >= 40 %}badge-score-orange
+        {% else %}badge-score-red{% endif %}">
+        {% if profile.ai_score >= 80 %}🏆 Excellent
+        {% elif profile.ai_score >= 60 %}🚀 Good
+        {% elif profile.ai_score >= 40 %}📈 Fair
+        {% else %}⚠️ Low{% endif %}
+      </div>
+    </div>
+
+    <div class="ai-score-body">
+      <!-- Animated Ring -->
+      <div class="score-ring-wrap">
+        <svg class="score-svg" viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="50" fill="none" stroke="var(--border)" stroke-width="10"/>
+          <circle cx="60" cy="60" r="50" fill="none"
+            stroke="url(#scoreGrad)" stroke-width="10"
+            stroke-linecap="round"
+            stroke-dasharray="314"
+            stroke-dashoffset="{{ 314|add:'-'|add:profile.ai_score|floatformat:0 }}"
+            style="stroke-dashoffset: calc(314 - (314 * {{ profile.ai_score }} / 100));
+                   transform: rotate(-90deg); transform-origin: 60px 60px;
+                   transition: stroke-dashoffset 1.2s ease;"
+          />
+          <defs>
+            <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="var(--blue)"/>
+              <stop offset="100%" stop-color="var(--indigo)"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="score-ring-center">
+          <span class="score-big">{{ profile.ai_score }}</span>
+          <span class="score-max">/100</span>
+        </div>
+      </div>
+
+      <!-- Breakdown Bars -->
+      <div class="score-breakdown">
+        {% for item in breakdown %}
+        <div class="breakdown-row">
+          <div class="breakdown-label">
+            <span class="breakdown-check {% if item.done %}done{% endif %}">
+              {% if item.done %}✓{% else %}○{% endif %}
+            </span>
+            {{ item.label }}
+          </div>
+          <div class="breakdown-bar-track">
+            <div class="breakdown-bar-fill {% if item.done %}filled{% endif %}"
+                 style="width:{% if item.done %}100{% else %}0{% endif %}%"></div>
+          </div>
+          <span class="breakdown-pts">{{ item.pts }}pts</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Completion Card -->
+  <div class="card">
+    <div class="ai-score-header">
+      <div>
+        <h3 style="font-size:17px;font-weight:700;margin-bottom:4px">📁 Profile Completion</h3>
+        <p style="font-size:13px;color:var(--text-3)">How complete your profile is</p>
+      </div>
+      <span class="ai-score-badge badge-score-blue">{{ profile_pct }}%</span>
+    </div>
+
+    <!-- Big % display -->
+    <div style="text-align:center;padding:20px 0 16px">
+      <div class="profile-pct-big">{{ profile_pct }}<span style="font-size:20px;font-weight:500;color:var(--text-3)">%</span></div>
+      <div style="font-size:13px;color:var(--text-3);margin-top:4px">
+        {% if profile_pct == 100 %}Profile is fully complete 🎉
+        {% elif profile_pct >= 66 %}Almost there — keep going!
+        {% elif profile_pct >= 33 %}Good start — add more details
+        {% else %}Just getting started{% endif %}
+      </div>
+    </div>
+
+    <!-- Completion bar -->
+    <div class="completion-bar-track" style="margin-bottom:20px">
+      <div class="completion-bar-fill" style="width:{{ profile_pct }}%"></div>
+    </div>
+
+    <!-- Checklist -->
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div class="profile-check-item {% if request.user.first_name %}done{% endif %}">
+        <span>{% if request.user.first_name %}✓{% else %}○{% endif %}</span> First Name
+      </div>
+      <div class="profile-check-item {% if request.user.last_name %}done{% endif %}">
+        <span>{% if request.user.last_name %}✓{% else %}○{% endif %}</span> Last Name
+      </div>
+      <div class="profile-check-item {% if request.user.email %}done{% endif %}">
+        <span>{% if request.user.email %}✓{% else %}○{% endif %}</span> Email Address
+      </div>
+      <div class="profile-check-item {% if profile.avatar %}done{% endif %}">
+        <span>{% if profile.avatar %}✓{% else %}○{% endif %}</span> Profile Photo
+      </div>
+      <div class="profile-check-item {% if profile.bio %}done{% endif %}">
+        <span>{% if profile.bio %}✓{% else %}○{% endif %}</span> Bio
+      </div>
+      <div class="profile-check-item {% if profile.skills %}done{% endif %}">
+        <span>{% if profile.skills %}✓{% else %}○{% endif %}</span> Skills
+      </div>
+    </div>
+
+    <a href="{% url 'profile' %}" class="btn btn-primary" style="width:100%;margin-top:16px;justify-content:center">
+      Edit Profile →
+    </a>
+  </div>
+</div>
+
+<!-- AI Mentor + Tips Row -->
+<div class="two-col fade-up fade-up-2" style="margin-bottom:24px">
+
+  <!-- AI Mentor -->
+  <div class="card">
+    <h3 style="font-size:17px;font-weight:700;margin-bottom:6px">🧠 AI Mentor</h3>
+    <p style="color:var(--text-3);font-size:13px;margin-bottom:16px">Personalized career guidance based on your profile.</p>
+
+    {% if skills %}
+    <div style="margin-bottom:16px">
+      <div style="font-size:12px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px">Your Skills</div>
+      <div class="skills-list">
+        {% for skill in skills %}<span class="skill-tag">{{ skill }}</span>{% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="tip-item" style="background:rgba(0,122,255,0.06);border-color:rgba(0,122,255,0.15)">
+      <div class="tip-icon">💬</div>
+      <div>
+        <strong>Career Insight</strong>
+        <p style="font-size:13px;color:var(--text-3);margin-top:2px">
+          {% if skills %}
+            Based on your skills in {{ skills|join:", " }}, explore freelance projects to build a strong portfolio.
+          {% else %}
+            Add your skills to get personalized career recommendations from your AI Mentor.
+          {% endif %}
+        </p>
+      </div>
+    </div>
+
+    <div class="tip-item" style="background:rgba(52,199,89,0.06);border-color:rgba(52,199,89,0.15);margin-top:10px">
+      <div class="tip-icon">📊</div>
+      <div>
+        <strong>Activity Summary</strong>
+        <p style="font-size:13px;color:var(--text-3);margin-top:2px">
+          You have submitted <strong>{{ apps_count }}</strong> application{{ apps_count|pluralize }}.
+          {% if apps_count < 4 %}Apply to {{ 4|add:"-"|add:apps_count }} more to boost your score.{% else %}Great activity! Keep applying.{% endif %}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Growth Tips -->
+  <div class="card">
+    <h3 style="font-size:17px;font-weight:700;margin-bottom:16px">📈 Growth Recommendations</h3>
+    {% if tips %}
+      {% for tip in tips %}
+      <div class="tip-item">
+        <div class="tip-icon">💡</div>
+        <div><p style="font-size:13px">{{ tip }}</p></div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div style="text-align:center;padding:24px;color:var(--text-3)">
+        <div style="font-size:40px;margin-bottom:12px">🎉</div>
+        <p>Your profile looks great! Keep applying to opportunities.</p>
+      </div>
+    {% endif %}
+    <a href="{% url 'profile' %}" class="btn btn-primary" style="margin-top:16px">Improve Profile →</a>
+  </div>
+</div>
+
+<!-- Smart Recommendations -->
+<div class="card fade-up fade-up-3">
+  <h3 style="font-size:17px;font-weight:700;margin-bottom:16px">🎯 Smart Recommendations</h3>
+  <div class="three-col">
+    <div class="tip-item" style="flex-direction:column;align-items:flex-start">
+      <div style="font-size:24px;margin-bottom:8px">📚</div>
+      <strong style="font-size:14px">Learn Python</strong>
+      <p style="font-size:12px;color:var(--text-3);margin-top:4px">Most in-demand skill for tech internships</p>
+    </div>
+    <div class="tip-item" style="flex-direction:column;align-items:flex-start">
+      <div style="font-size:24px;margin-bottom:8px">🎨</div>
+      <strong style="font-size:14px">UI/UX Design</strong>
+      <p style="font-size:12px;color:var(--text-3);margin-top:4px">High demand in freelance market</p>
+    </div>
+    <div class="tip-item" style="flex-direction:column;align-items:flex-start">
+      <div style="font-size:24px;margin-bottom:8px">📊</div>
+      <strong style="font-size:14px">Digital Marketing</strong>
+      <p style="font-size:12px;color:var(--text-3);margin-top:4px">Great for business-focused students</p>
+    </div>
+  </div>
+</div>
+
+<style>
+.ai-top-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+/* Score card */
+.ai-score-main { }
+.ai-score-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.ai-score-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.badge-score-gold   { background: rgba(255,204,0,0.15);  color: #b8860b; }
+.badge-score-blue   { background: rgba(0,122,255,0.12);  color: var(--blue); }
+.badge-score-orange { background: rgba(255,149,0,0.12);  color: var(--orange); }
+.badge-score-red    { background: rgba(255,59,48,0.12);  color: var(--red); }
+
+.ai-score-body {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+/* SVG ring */
+.score-ring-wrap {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  flex-shrink: 0;
+}
+.score-svg { width: 120px; height: 120px; }
+.score-ring-center {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  line-height: 1;
+}
+.score-big {
+  display: block;
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  background: linear-gradient(135deg, var(--blue), var(--indigo));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.score-max { font-size: 12px; color: var(--text-3); font-weight: 500; }
+
+/* Breakdown */
+.score-breakdown { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.breakdown-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.breakdown-label {
+  font-size: 12px;
+  color: var(--text-2);
+  width: 160px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.breakdown-check {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-3);
+}
+.breakdown-check.done { color: var(--green); }
+.breakdown-bar-track {
+  flex: 1;
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.breakdown-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--border);
+  transition: width 1s ease;
+}
+.breakdown-bar-fill.filled {
+  background: linear-gradient(90deg, var(--blue), var(--indigo));
+}
+.breakdown-pts {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-3);
+  width: 32px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* Profile completion */
+.profile-pct-big {
+  font-size: 48px;
+  font-weight: 800;
+  letter-spacing: -2px;
+  background: linear-gradient(135deg, var(--blue), var(--indigo));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+}
+.completion-bar-track {
+  height: 8px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.completion-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--blue), var(--indigo), var(--purple));
+  transition: width 1.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+.completion-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  animation: barShimmer 2s ease-in-out infinite;
+}
+@keyframes barShimmer {
+  0% { left: -100%; } 100% { left: 100%; }
+}
+.profile-check-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-3);
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: var(--transition);
+}
+.profile-check-item.done {
+  color: var(--green);
+  background: rgba(52,199,89,0.06);
+}
+.profile-check-item span { font-weight: 700; font-size: 12px; }
+
+@media (max-width: 768px) {
+  .ai-top-row { grid-template-columns: 1fr; }
+  .ai-score-body { flex-direction: column; }
+  .breakdown-label { width: 120px; }
+}
+</style>
+
+{% endblock %}

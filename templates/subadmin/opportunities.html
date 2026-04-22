@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Manage Opportunities – IXOVA{% endblock %}
+{% block content %}
+
+<div class="topbar">
+  <div class="topbar-greeting">
+    <h1>Manage Opportunities 💼</h1>
+    <p>{{ opportunities.count }} listing{{ opportunities.count|pluralize }}</p>
+  </div>
+  <div class="topbar-actions">
+    <a href="{% url 'subadmin_dashboard' %}" class="btn btn-secondary">← Back</a>
+  </div>
+</div>
+
+<div class="card fade-up table-wrap">
+  <table class="sa-table">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Company</th>
+        <th>Type</th>
+        <th>Trending</th>
+        <th>Deadline</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for opp in opportunities %}
+      <tr>
+        <td><strong>{{ opp.title }}</strong></td>
+        <td style="color:var(--text-3)">{{ opp.company }}</td>
+        <td>
+          <span class="badge {% if opp.type == 'internship' %}badge-blue{% elif opp.type == 'freelance' %}badge-green{% else %}badge-orange{% endif %}">
+            {{ opp.get_type_display }}
+          </span>
+        </td>
+        <td>{% if opp.is_trending %}<span class="badge badge-trending">🔥 Yes</span>{% else %}<span style="color:var(--text-3)">—</span>{% endif %}</td>
+        <td style="color:var(--text-3)">{{ opp.deadline|default:"—" }}</td>
+        <td>
+          <form method="post" action="{% url 'subadmin_delete_opportunity' opp.pk %}"
+                onsubmit="return confirm('Delete {{ opp.title }}?')">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6" style="text-align:center;color:var(--text-3);padding:40px">No opportunities found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

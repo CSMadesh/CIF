@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Manage Courses – IXOVA{% endblock %}
+{% block content %}
+
+<div class="topbar">
+  <div class="topbar-greeting">
+    <h1>Manage Courses 📚</h1>
+    <p>{{ courses.count }} course{{ courses.count|pluralize }}</p>
+  </div>
+  <div class="topbar-actions">
+    <a href="{% url 'subadmin_add_course' %}" class="btn btn-primary">+ Add Course</a>
+    <a href="{% url 'subadmin_dashboard' %}" class="btn btn-secondary">← Back</a>
+  </div>
+</div>
+
+<div class="card fade-up table-wrap">
+  <table class="sa-table">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Category</th>
+        <th>Duration</th>
+        <th>Video</th>
+        <th>Premium</th>
+        <th>Created</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for course in courses %}
+      <tr>
+        <td><strong>{{ course.title }}</strong></td>
+        <td style="color:var(--text-3)">{{ course.get_category_display }}</td>
+        <td style="color:var(--text-3)">{{ course.duration }}</td>
+        <td>
+          {% if course.video %}
+            <span class="badge badge-green">🎬 Uploaded</span>
+          {% else %}
+            <span class="badge badge-orange">No Video</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if course.is_premium %}
+            <span class="badge badge-orange">⭐ Premium</span>
+          {% else %}
+            <span class="badge badge-green">Free</span>
+          {% endif %}
+        </td>
+        <td style="color:var(--text-3)">{{ course.created_at|date:"M d, Y" }}</td>
+        <td style="display:flex;gap:8px">
+          <a href="{% url 'subadmin_edit_course' course.pk %}" class="btn btn-sm btn-secondary">Edit</a>
+          <form method="post" action="{% url 'subadmin_delete_course' course.pk %}"
+                onsubmit="return confirm('Delete {{ course.title }}?')">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="7" style="text-align:center;color:var(--text-3);padding:40px">No courses yet. <a href="{% url 'subadmin_add_course' %}" style="color:var(--blue)">Add one →</a></td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

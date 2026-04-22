@@ -1,0 +1,394 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard – IXOVA{% endblock %}
+{% block content %}
+
+<!-- Topbar -->
+<div class="topbar fade-up">
+  <div class="topbar-greeting">
+    <h1>Good Morning, {{ user.first_name|default:user.username }} 👋</h1>
+    <p>Here's what's happening on your IXOVA today</p>
+  </div>
+  <div class="topbar-actions">
+    <a href="{% url 'discover' %}" class="btn btn-primary btn-sm">+ Explore</a>
+    <a href="{% url 'profile' %}">
+      <div class="avatar">
+        {% if profile.avatar %}
+          <img src="{{ profile.avatar.url }}" alt="avatar">
+        {% else %}
+          {{ user.first_name|first|upper|default:user.username|first|upper }}
+        {% endif %}
+      </div>
+    </a>
+  </div>
+</div>
+
+<!-- Motivational Quote -->
+<div class="quote-card fade-up fade-up-1">
+  <div class="quote-icon">✦</div>
+  <div class="quote-body">
+    <p class="quote-text">"{{ quote.text }}"</p>
+    <span class="quote-author">— {{ quote.author }}</span>
+  </div>
+  <div class="quote-badge">Daily Quote</div>
+</div>
+
+<!-- Stats Grid -->
+<div class="stats-grid">
+  <div class="stat-card fade-up fade-up-1">
+    <div class="stat-icon" style="background:rgba(0,122,255,0.12)">👁️</div>
+    <div class="stat-value">{{ profile.profile_views }}</div>
+    <div class="stat-label">Profile Views</div>
+    <div class="stat-bar"><div class="stat-bar-fill" style="width:{{ profile.profile_views|default:0 }}%;background:var(--blue)"></div></div>
+  </div>
+  <div class="stat-card fade-up fade-up-2">
+    <div class="stat-icon" style="background:rgba(52,199,89,0.12)">🔖</div>
+    <div class="stat-value">{{ saved_count }}</div>
+    <div class="stat-label">Saved Opportunities</div>
+    <div class="stat-bar"><div class="stat-bar-fill" style="width:{{ saved_count|default:0 }}%;background:var(--green)"></div></div>
+  </div>
+  <div class="stat-card fade-up fade-up-3">
+    <div class="stat-icon" style="background:rgba(255,149,0,0.12)">✅</div>
+    <div class="stat-value">{{ applications }}</div>
+    <div class="stat-label">Applications</div>
+    <div class="stat-bar"><div class="stat-bar-fill" style="width:{{ applications|default:0 }}%;background:var(--orange)"></div></div>
+  </div>
+  <div class="stat-card fade-up fade-up-4">
+    <div class="stat-icon" style="background:rgba(175,82,222,0.12)">🤖</div>
+    <div class="stat-value">{{ profile.ai_score }}</div>
+    <div class="stat-label">AI Score</div>
+    <div class="stat-bar"><div class="stat-bar-fill" style="width:{{ profile.ai_score|default:0 }}%;background:var(--purple)"></div></div>
+  </div>
+</div>
+
+<!-- Quick Actions + AI Score Row -->
+<div class="dash-two-col fade-up fade-up-2" style="margin-bottom:32px">
+
+  <!-- Quick Actions -->
+  <div class="card">
+    <div class="card-header-row">
+      <span class="card-title-icon">⚡</span>
+      <h3 class="card-section-title">Quick Actions</h3>
+    </div>
+    <div class="quick-actions-grid">
+      <a href="{% url 'discover' %}" class="quick-action-btn">
+        <div class="qa-icon" style="background:rgba(0,122,255,0.12)">🔍</div>
+        <span>Discover</span>
+      </a>
+      <a href="{% url 'ai_tools' %}" class="quick-action-btn">
+        <div class="qa-icon" style="background:rgba(175,82,222,0.12)">🤖</div>
+        <span>AI Tools</span>
+      </a>
+      <a href="{% url 'chat' %}" class="quick-action-btn">
+        <div class="qa-icon" style="background:rgba(52,199,89,0.12)">💬</div>
+        <span>AI Chat</span>
+      </a>
+      <a href="{% url 'profile' %}" class="quick-action-btn">
+        <div class="qa-icon" style="background:rgba(255,149,0,0.12)">📁</div>
+        <span>Profile</span>
+      </a>
+      <a href="{% url 'saved' %}" class="quick-action-btn">
+        <div class="qa-icon" style="background:rgba(255,45,85,0.12)">🔖</div>
+        <span>Saved</span>
+      </a>
+      <a href="{% url 'profile' %}" class="quick-action-btn">
+        <div class="qa-icon" style="background:rgba(90,200,250,0.12)">⚙️</div>
+        <span>Settings</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- AI Score Card -->
+  <div class="card ai-score-card">
+    <div class="card-header-row">
+      <span class="card-title-icon">🎯</span>
+      <h3 class="card-section-title">Profile Strength</h3>
+    </div>
+    <div class="ai-score-body">
+      <div class="score-ring" style="--score:{{ profile.ai_score }};width:110px;height:110px">
+        <span class="score-value" style="font-size:26px">{{ profile.ai_score }}</span>
+      </div>
+      <div class="ai-score-details">
+        <div class="ai-score-label">
+          {% if profile.ai_score >= 80 %}🏆 Excellent
+          {% elif profile.ai_score >= 60 %}🚀 Good Progress
+          {% elif profile.ai_score >= 40 %}📈 Getting Started
+          {% else %}⚠️ Needs Attention{% endif %}
+        </div>
+        <p class="ai-score-desc">
+          {% if profile.ai_score >= 80 %}Your profile is highly attractive to recruiters.
+          {% elif profile.ai_score >= 60 %}A few improvements can boost your visibility.
+          {% elif profile.ai_score >= 40 %}Complete your profile to unlock more.
+          {% else %}Follow the tips below to improve.{% endif %}
+        </p>
+        <a href="{% url 'ai_tools' %}" class="btn btn-primary btn-sm" style="margin-top:10px">View AI Tools →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Trending Opportunities -->
+<div class="section-header fade-up fade-up-2">
+  <h2 class="section-title">🔥 Trending Opportunities</h2>
+  <a href="{% url 'discover' %}" class="see-all">See all →</a>
+</div>
+
+{% if trending %}
+<div class="cards-grid">
+  {% for opp in trending %}
+  <div class="opp-card fade-up fade-up-{{ forloop.counter }}">
+    <div class="opp-card-accent" style="background:{% if opp.type == 'internship' %}var(--blue){% elif opp.type == 'freelance' %}var(--green){% else %}var(--orange){% endif %}"></div>
+    <div class="opp-header">
+      <div>
+        <div class="opp-company">{{ opp.company }}</div>
+        <div class="opp-title">{{ opp.title }}</div>
+      </div>
+      <span class="badge badge-trending">🔥 Hot</span>
+    </div>
+    <div class="opp-meta">
+      <span class="badge {% if opp.type == 'internship' %}badge-blue{% elif opp.type == 'freelance' %}badge-green{% else %}badge-orange{% endif %}">
+        {{ opp.get_type_display }}
+      </span>
+      <span class="badge badge-purple">{{ opp.category }}</span>
+    </div>
+    {% if opp.stipend %}
+      <div class="opp-stipend">💰 {{ opp.stipend }}</div>
+    {% endif %}
+    <div class="opp-actions">
+      <a href="{% url 'apply' opp.pk %}" class="btn btn-primary btn-sm">Apply Now</a>
+      <a href="{% url 'save' opp.pk %}" class="btn btn-secondary btn-sm">🔖 Save</a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="card fade-up empty-state">
+  <div class="empty-icon">🔍</div>
+  <p>No trending opportunities yet.</p>
+  <a href="{% url 'discover' %}" class="btn btn-primary btn-sm" style="margin-top:12px">Explore all →</a>
+</div>
+{% endif %}
+
+<!-- Activity Feed -->
+<div class="section-header fade-up" style="margin-top:32px">
+  <h2 class="section-title">📡 Activity Feed</h2>
+</div>
+<div class="card fade-up activity-card">
+  <div class="tip-item">
+    <div class="tip-icon" style="background:rgba(0,122,255,0.12)">🚀</div>
+    <div>
+      <strong>Welcome to IXOVA!</strong>
+      <p style="font-size:13px;color:var(--text-3);margin-top:2px">Complete your profile to unlock more opportunities and improve your AI Score.</p>
+    </div>
+    <a href="{% url 'profile' %}" class="btn btn-ghost btn-sm" style="margin-left:auto;white-space:nowrap">Go →</a>
+  </div>
+  <div class="tip-item">
+    <div class="tip-icon" style="background:rgba(255,204,0,0.12)">💡</div>
+    <div>
+      <strong>Tip: Add your skills</strong>
+      <p style="font-size:13px;color:var(--text-3);margin-top:2px">Students with 5+ skills get 3x more profile views from recruiters.</p>
+    </div>
+    <a href="{% url 'profile' %}" class="btn btn-ghost btn-sm" style="margin-left:auto;white-space:nowrap">Add →</a>
+  </div>
+  <div class="tip-item" style="margin-bottom:0">
+    <div class="tip-icon" style="background:rgba(175,82,222,0.12)">🤖</div>
+    <div>
+      <strong>AI Tools are ready</strong>
+      <p style="font-size:13px;color:var(--text-3);margin-top:2px">Use the AI Mentor to get personalized career guidance and growth tips.</p>
+    </div>
+    <a href="{% url 'ai_tools' %}" class="btn btn-ghost btn-sm" style="margin-left:auto;white-space:nowrap">Open →</a>
+  </div>
+</div>
+
+<style>
+/* ── Quote Card ───────────────────────────────────────────── */
+.quote-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 24px;
+  margin-bottom: 24px;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, rgba(0,122,255,0.06) 0%, rgba(88,86,214,0.06) 50%, rgba(175,82,222,0.04) 100%);
+  border: 1px solid rgba(0,122,255,0.15);
+  position: relative;
+  overflow: hidden;
+}
+.quote-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--blue), var(--indigo), var(--purple));
+}
+.quote-icon {
+  font-size: 28px;
+  color: var(--blue);
+  opacity: 0.5;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.quote-body { flex: 1; }
+.quote-text {
+  font-size: 14px;
+  font-style: italic;
+  color: var(--text-2);
+  line-height: 1.6;
+  margin-bottom: 4px;
+}
+.quote-author {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--blue);
+}
+.quote-badge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--indigo);
+  background: rgba(88,86,214,0.1);
+  padding: 4px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── Dashboard Extras ─────────────────────────────────────── */
+.dash-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.card-header-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.card-title-icon { font-size: 18px; }
+.card-section-title { font-size: 16px; font-weight: 700; }
+
+/* Stat bar */
+.stat-bar {
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  margin-top: 10px;
+  overflow: hidden;
+}
+.stat-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  max-width: 100%;
+  transition: width 1s var(--ease);
+  position: relative;
+  overflow: hidden;
+}
+.stat-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+  animation: barShimmer 2s ease-in-out infinite;
+}
+@keyframes barShimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* Quick Actions */
+.quick-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.quick-action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+  transition: var(--transition);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.quick-action-btn::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  transition: left 0.4s ease;
+}
+.quick-action-btn:hover {
+  background: var(--bg);
+  border-color: var(--blue);
+  color: var(--blue);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0,122,255,0.15);
+}
+.quick-action-btn:hover::before { left: 100%; }
+.qa-icon {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  transition: var(--transition);
+}
+.quick-action-btn:hover .qa-icon { transform: scale(1.15) rotate(5deg); }
+
+/* AI Score Card */
+.ai-score-body {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.ai-score-details { flex: 1; }
+.ai-score-label {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.ai-score-desc {
+  font-size: 13px;
+  color: var(--text-3);
+  line-height: 1.5;
+}
+
+/* Opp card accent bar */
+.opp-card { position: relative; padding-top: 24px; }
+.opp-card-accent {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: var(--radius) var(--radius) 0 0;
+  opacity: 0.7;
+  transition: var(--transition);
+}
+.opp-card:hover .opp-card-accent { opacity: 1; height: 4px; }
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 48px;
+  color: var(--text-3);
+}
+.empty-icon { font-size: 48px; margin-bottom: 12px; }
+
+/* Activity card tip-item tweak */
+.activity-card .tip-item { align-items: center; }
+
+@media (max-width: 768px) {
+  .dash-two-col { grid-template-columns: 1fr; }
+  .quick-actions-grid { grid-template-columns: repeat(3, 1fr); }
+  .ai-score-body { flex-direction: column; text-align: center; }
+}
+</style>
+
+{% endblock %}

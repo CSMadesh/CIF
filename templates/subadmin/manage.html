@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% block title %}Manage Sub-Admins – IXOVA{% endblock %}
+{% block content %}
+
+<div class="topbar">
+  <div class="topbar-greeting">
+    <h1>Sub-Admin Roster 🛡️</h1>
+    <p>Assign and manage sub-admin access</p>
+  </div>
+  <div class="topbar-actions">
+    <a href="{% url 'subadmin_dashboard' %}" class="btn btn-secondary">← Back</a>
+  </div>
+</div>
+
+<!-- Assign Form -->
+<div class="card fade-up fade-up-1" style="margin-bottom:24px">
+  <div class="section-header">
+    <h2 class="section-title">Assign New Sub-Admin</h2>
+  </div>
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="create">
+    <div class="two-col" style="margin-bottom:16px">
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">User</label>
+        <select name="user_id" required class="form-control">
+          <option value="">Select a user…</option>
+          {% for u in regular_users %}
+          <option value="{{ u.pk }}">{{ u.username }}{% if u.email %} — {{ u.email }}{% endif %}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">Role</label>
+        <select name="role" required class="form-control">
+          <option value="content">Content Manager</option>
+          <option value="support">Support Manager</option>
+          <option value="moderator">Moderator</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:20px">
+      <label style="display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer">
+        <input type="checkbox" name="can_manage_users"> Manage Users
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer">
+        <input type="checkbox" name="can_manage_opportunities"> Manage Opportunities
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer">
+        <input type="checkbox" name="can_manage_courses"> Manage Courses <span style="font-size:11px;color:var(--text-3);margin-left:4px">(includes video upload)</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer">
+        <input type="checkbox" name="can_manage_applications"> Manage Applications
+      </label>
+    </div>
+    <button type="submit" class="btn btn-primary">Assign Sub-Admin</button>
+  </form>
+</div>
+
+<!-- Roster Table -->
+<div class="card fade-up fade-up-2 table-wrap">
+  <div class="section-header">
+    <h2 class="section-title">Current Sub-Admins</h2>
+    <span class="badge badge-blue">{{ subadmins.count }} total</span>
+  </div>
+  <table class="sa-table">
+    <thead>
+      <tr>
+        <th>Username</th>
+        <th>Role</th>
+        <th>Permissions</th>
+        <th>Status</th>
+        <th>Assigned By</th>
+        <th>Since</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for sa in subadmins %}
+      <tr>
+        <td><strong>{{ sa.user.username }}</strong></td>
+        <td><span class="badge badge-indigo">{{ sa.get_role_display }}</span></td>
+        <td style="font-size:12px">
+          {% if sa.can_manage_users %}<span class="badge badge-blue" style="margin:2px">Users</span>{% endif %}
+          {% if sa.can_manage_opportunities %}<span class="badge badge-green" style="margin:2px">Opps</span>{% endif %}
+          {% if sa.can_manage_courses %}<span class="badge badge-purple" style="margin:2px">Courses</span>{% endif %}
+          {% if sa.can_manage_applications %}<span class="badge badge-orange" style="margin:2px">Apps</span>{% endif %}
+        </td>
+        <td>
+          {% if sa.is_active %}
+            <span class="status-active">● Active</span>
+          {% else %}
+            <span class="status-inactive">● Inactive</span>
+          {% endif %}
+        </td>
+        <td style="color:var(--text-3)">{{ sa.assigned_by.username|default:"—" }}</td>
+        <td style="color:var(--text-3)">{{ sa.created_at|date:"M d, Y" }}</td>
+        <td style="display:flex;gap:8px">
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="revoke">
+            <input type="hidden" name="sa_id" value="{{ sa.pk }}">
+            <button type="submit" class="btn btn-sm btn-secondary">
+              {% if sa.is_active %}Deactivate{% else %}Activate{% endif %}
+            </button>
+          </form>
+          <form method="post" onsubmit="return confirm('Remove {{ sa.user.username }} as sub-admin?')">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="delete">
+            <input type="hidden" name="sa_id" value="{{ sa.pk }}">
+            <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+          </form>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="7" style="text-align:center;color:var(--text-3);padding:40px">No sub-admins assigned yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

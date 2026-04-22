@@ -1,0 +1,335 @@
+{% extends 'base.html' %}
+{% block title %}My Profile – IXOVA{% endblock %}
+{% block content %}
+
+<div class="topbar fade-up">
+  <div class="topbar-greeting">
+    <h1>My Profile 📁</h1>
+    <p>Manage your professional identity</p>
+  </div>
+</div>
+
+<!-- Profile Completion Banner -->
+<div class="completion-banner fade-up fade-up-1">
+  <div class="completion-top">
+    <div class="completion-left">
+      <div class="completion-title">
+        {% if completion_pct == 100 %}
+          🏆 Profile Complete!
+        {% elif completion_pct >= 66 %}
+          🚀 Almost There!
+        {% elif completion_pct >= 33 %}
+          📈 Good Progress
+        {% else %}
+          ⚡ Get Started
+        {% endif %}
+      </div>
+      <div class="completion-sub">{{ completed }} of {{ total_steps }} steps completed</div>
+    </div>
+    <div class="completion-pct">{{ completion_pct }}%</div>
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="completion-bar-track">
+    <div class="completion-bar-fill" style="width:{{ completion_pct }}%"
+         data-pct="{{ completion_pct }}"></div>
+  </div>
+
+  <!-- Steps Checklist -->
+  <div class="completion-steps">
+    {% for key, label, done in steps %}
+    <div class="completion-step {% if done %}done{% endif %}">
+      <div class="step-check">{% if done %}✓{% else %}○{% endif %}</div>
+      <span>{{ label }}</span>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Profile Header -->
+<div class="profile-header fade-up fade-up-2">
+  <div class="profile-avatar-lg">
+    {% if profile.avatar %}
+      <img src="{{ profile.avatar.url }}" alt="avatar">
+    {% else %}
+      {{ user.first_name|first|upper|default:user.username|first|upper }}
+    {% endif %}
+  </div>
+  <div class="profile-info" style="flex:1">
+    <h2>{{ user.get_full_name|default:user.username }}</h2>
+    <p>@{{ user.username }} · {{ user.email }}</p>
+    {% if profile.bio %}
+      <p style="margin-top:8px;color:var(--text-2);font-size:14px">{{ profile.bio }}</p>
+    {% endif %}
+    {% if profile.skills %}
+    <div class="skills-list">
+      {% for skill in profile.skills.split %}
+        <span class="skill-tag">{{ skill|cut:"," }}</span>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+
+<div class="two-col">
+  <!-- Edit Profile Form -->
+  <div class="card fade-up fade-up-3">
+    <h3 style="margin-bottom:20px;font-size:16px;font-weight:700">✏️ Edit Profile</h3>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="two-col" style="gap:12px">
+        <div class="form-group">
+          <label class="form-label">
+            First Name
+            {% if not user.first_name %}<span class="field-missing">Missing</span>{% endif %}
+          </label>
+          <input type="text" name="first_name" class="form-control {% if not user.first_name %}input-missing{% endif %}"
+                 value="{{ user.first_name }}" placeholder="Your first name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">
+            Last Name
+            {% if not user.last_name %}<span class="field-missing">Missing</span>{% endif %}
+          </label>
+          <input type="text" name="last_name" class="form-control {% if not user.last_name %}input-missing{% endif %}"
+                 value="{{ user.last_name }}" placeholder="Your last name">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">
+          Email
+          {% if not user.email %}<span class="field-missing">Missing</span>{% endif %}
+        </label>
+        <input type="email" name="email" class="form-control {% if not user.email %}input-missing{% endif %}"
+               value="{{ user.email }}" placeholder="your@email.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">
+          Bio
+          {% if not profile.bio %}<span class="field-missing">Missing</span>{% endif %}
+        </label>
+        <textarea name="bio" class="form-control {% if not profile.bio %}input-missing{% endif %}"
+                  placeholder="Tell us about yourself...">{{ profile.bio }}</textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">
+          Skills <span style="color:var(--text-3);font-weight:400">(comma separated)</span>
+          {% if not profile.skills %}<span class="field-missing">Missing</span>{% endif %}
+        </label>
+        <input type="text" name="skills"
+               class="form-control {% if not profile.skills %}input-missing{% endif %}"
+               value="{{ profile.skills }}" placeholder="Python, Django, React...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">
+          Profile Photo
+          {% if not profile.avatar %}<span class="field-missing">Missing</span>{% endif %}
+        </label>
+        {% if profile.avatar %}
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+            <img src="{{ profile.avatar.url }}"
+                 style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid var(--border)">
+            <span style="font-size:12px;color:var(--text-3)">Current photo — upload to replace</span>
+          </div>
+        {% endif %}
+        <input type="file" name="avatar" class="form-control" accept="image/*">
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;padding:12px">
+        Save Changes
+      </button>
+    </form>
+  </div>
+
+  <!-- Right Column -->
+  <div style="display:flex;flex-direction:column;gap:20px">
+
+    <!-- Applications -->
+    <div class="card fade-up fade-up-4">
+      <h3 style="margin-bottom:20px;font-size:16px;font-weight:700">📋 My Applications</h3>
+      {% if applications %}
+        {% for app in applications %}
+        <div class="app-item">
+          <div>
+            <div style="font-size:14px;font-weight:600">{{ app.opportunity.title }}</div>
+            <div style="font-size:12px;color:var(--text-3)">{{ app.opportunity.company }}</div>
+          </div>
+          <span class="badge
+            {% if app.status == 'accepted' %}badge-green
+            {% elif app.status == 'rejected' %}badge-trending
+            {% elif app.status == 'interview' %}badge-orange
+            {% else %}badge-blue{% endif %}">
+            {{ app.get_status_display }}
+          </span>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div style="text-align:center;padding:32px;color:var(--text-3)">
+          <div style="font-size:36px;margin-bottom:12px">📋</div>
+          <p>No applications yet.</p>
+          <a href="{% url 'discover' %}" class="btn btn-primary btn-sm" style="margin-top:12px">
+            Explore Opportunities
+          </a>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- What's Next -->
+    {% if completion_pct < 100 %}
+    <div class="card fade-up fade-up-5 whats-next-card">
+      <h3 style="margin-bottom:16px;font-size:16px;font-weight:700">💡 What's Next</h3>
+      {% for key, label, done in steps %}
+        {% if not done %}
+        <div class="next-step-item">
+          <div class="next-step-dot"></div>
+          <span>{{ label }}</span>
+        </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+
+<style>
+/* ── Completion Banner ─────────────────────────────────── */
+.completion-banner {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+}
+.completion-banner::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--blue), var(--indigo), var(--purple));
+}
+
+.completion-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.completion-title {
+  font-size: 16px;
+  font-weight: 700;
+}
+.completion-sub {
+  font-size: 13px;
+  color: var(--text-3);
+  margin-top: 2px;
+}
+.completion-pct {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  background: linear-gradient(135deg, var(--blue), var(--indigo));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Progress bar */
+.completion-bar-track {
+  height: 8px;
+  background: var(--bg-2);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.completion-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--blue), var(--indigo), var(--purple));
+  transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+.completion-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  animation: barShimmer 2s ease-in-out infinite;
+}
+@keyframes barShimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* Steps checklist */
+.completion-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.completion-step {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  color: var(--text-3);
+  transition: var(--transition);
+}
+.completion-step.done {
+  background: rgba(52,199,89,0.1);
+  border-color: rgba(52,199,89,0.3);
+  color: var(--green);
+}
+.step-check {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* Missing field indicators */
+.field-missing {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--orange);
+  background: rgba(255,149,0,0.1);
+  padding: 2px 7px;
+  border-radius: 10px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+.input-missing {
+  border-color: rgba(255,149,0,0.4) !important;
+}
+.input-missing:focus {
+  border-color: var(--blue) !important;
+}
+
+/* What's Next card */
+.whats-next-card {
+  background: linear-gradient(135deg, rgba(0,122,255,0.04), rgba(88,86,214,0.03));
+}
+.next-step-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  font-size: 13px;
+  color: var(--text-2);
+  border-bottom: 1px solid var(--border);
+}
+.next-step-item:last-child { border-bottom: none; }
+.next-step-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--blue), var(--indigo));
+  flex-shrink: 0;
+}
+</style>
+
+{% endblock %}

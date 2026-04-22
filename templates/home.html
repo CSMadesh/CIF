@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}IXOVA – Learn, Earn & Grow{% endblock %}
+{% block content %}
+<div class="hero">
+  <nav class="hero-nav">
+    <div class="hero-nav-logo">IXOVA</div>
+    <div class="hero-nav-links">
+      <a href="{% url 'login' %}" class="btn btn-secondary">Sign In</a>
+      <a href="{% url 'register' %}" class="btn btn-primary">Get Started</a>
+    </div>
+  </nav>
+
+  <div class="hero-body">
+    <div class="hero-badge fade-up fade-up-1">✨ Student-First Platform</div>
+    <h1 class="hero-title fade-up fade-up-2">
+      Learn. Earn. <span class="highlight">Grow.</span>
+    </h1>
+    <p class="hero-desc fade-up fade-up-3">
+      IXOVA combines education, freelancing, and internships into one powerful ecosystem — built for students ready to become professionals.
+    </p>
+    <div class="hero-cta fade-up fade-up-4">
+      <a href="{% url 'register' %}" class="btn btn-primary btn-lg">Start for Free →</a>
+      <a href="{% url 'login' %}" class="btn btn-secondary btn-lg">Sign In</a>
+    </div>
+  </div>
+
+  <div class="hero-features">
+    <div class="feature-item fade-up fade-up-4">
+      <div class="feature-icon" style="background:rgba(0,122,255,0.1)">📚</div>
+      <div>
+        <strong>Learn Skills</strong><br>
+        <span style="color:var(--text-tertiary);font-size:13px">Practical, industry-relevant courses</span>
+      </div>
+    </div>
+    <div class="feature-item fade-up fade-up-5">
+      <div class="feature-icon" style="background:rgba(52,199,89,0.1)">💰</div>
+      <div>
+        <strong>Earn Money</strong><br>
+        <span style="color:var(--text-tertiary);font-size:13px">Freelance & internship opportunities</span>
+      </div>
+    </div>
+    <div class="feature-item fade-up fade-up-6">
+      <div class="feature-icon" style="background:rgba(175,82,222,0.1)">🤖</div>
+      <div>
+        <strong>AI-Powered Growth</strong><br>
+        <span style="color:var(--text-tertiary);font-size:13px">Smart mentor & profile scorer</span>
+      </div>
+    </div>
+    <div class="feature-item fade-up fade-up-6">
+      <div class="feature-icon" style="background:rgba(255,149,0,0.1)">🚀</div>
+      <div>
+        <strong>Build Career</strong><br>
+        <span style="color:var(--text-tertiary);font-size:13px">Portfolio & professional identity</span>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

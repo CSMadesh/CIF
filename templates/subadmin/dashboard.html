@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}Sub-Admin Dashboard – IXOVA{% endblock %}
+{% block content %}
+
+<div class="topbar">
+  <div class="topbar-greeting">
+    <h1>Sub-Admin Panel 🛡️</h1>
+    <p>
+      {% if sa %}Role: {{ sa.get_role_display }}{% else %}Role: Superuser{% endif %}
+    </p>
+  </div>
+  {% if request.user.is_superuser %}
+  <div class="topbar-actions">
+    <a href="{% url 'subadmin_manage' %}" class="btn btn-primary btn-sm">Manage Sub-Admins</a>
+  </div>
+  {% endif %}
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card fade-up fade-up-1">
+    <div class="stat-icon" style="background:rgba(0,122,255,0.12)">👥</div>
+    <div class="stat-number">{{ stats.users }}</div>
+    <div class="stat-label">Total Users</div>
+  </div>
+  <div class="stat-card fade-up fade-up-2">
+    <div class="stat-icon" style="background:rgba(52,199,89,0.12)">💼</div>
+    <div class="stat-number">{{ stats.opportunities }}</div>
+    <div class="stat-label">Opportunities</div>
+  </div>
+  <div class="stat-card fade-up fade-up-3">
+    <div class="stat-icon" style="background:rgba(175,82,222,0.12)">📚</div>
+    <div class="stat-number">{{ stats.courses }}</div>
+    <div class="stat-label">Courses</div>
+  </div>
+  <div class="stat-card fade-up fade-up-4">
+    <div class="stat-icon" style="background:rgba(255,149,0,0.12)">✅</div>
+    <div class="stat-number">{{ stats.applications }}</div>
+    <div class="stat-label">Applications</div>
+  </div>
+</div>
+
+<div class="card fade-up fade-up-3">
+  <div class="section-header">
+    <h2 class="section-title">Quick Actions</h2>
+  </div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap">
+    {% if sa.can_manage_users or request.user.is_superuser %}
+    <a href="{% url 'subadmin_users' %}" class="btn btn-primary">👥 Manage Users</a>
+    {% endif %}
+    {% if sa.can_manage_opportunities or request.user.is_superuser %}
+    <a href="{% url 'subadmin_opportunities' %}" class="btn btn-primary">💼 Manage Opportunities</a>
+    {% endif %}
+    {% if sa.can_manage_courses or request.user.is_superuser %}
+    <a href="{% url 'subadmin_courses' %}" class="btn btn-primary">📚 Manage Courses</a>
+    <a href="{% url 'subadmin_add_course' %}" class="btn btn-primary">🎬 Upload Course Video</a>
+    {% endif %}
+    {% if request.user.is_superuser %}
+    <a href="{% url 'subadmin_manage' %}" class="btn btn-secondary">🛡️ Sub-Admin Roster</a>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

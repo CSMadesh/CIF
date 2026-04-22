@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}Manage Users – IXOVA{% endblock %}
+{% block content %}
+
+<div class="topbar">
+  <div class="topbar-greeting">
+    <h1>Manage Users 👥</h1>
+    <p>{{ users.count }} registered user{{ users.count|pluralize }}</p>
+  </div>
+  <div class="topbar-actions">
+    <a href="{% url 'subadmin_dashboard' %}" class="btn btn-secondary">← Back</a>
+  </div>
+</div>
+
+<div class="card fade-up table-wrap">
+  <table class="sa-table">
+    <thead>
+      <tr>
+        <th>Username</th>
+        <th>Email</th>
+        <th>Joined</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td><strong>{{ u.username }}</strong></td>
+        <td style="color:var(--text-3)">{{ u.email }}</td>
+        <td style="color:var(--text-3)">{{ u.date_joined|date:"M d, Y" }}</td>
+        <td>
+          {% if u.is_active %}
+            <span class="status-active">● Active</span>
+          {% else %}
+            <span class="status-inactive">● Inactive</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if not u.is_superuser and u != request.user %}
+          <form method="post" action="{% url 'subadmin_toggle_user' u.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm {% if u.is_active %}btn-danger{% else %}btn-secondary{% endif %}">
+              {% if u.is_active %}Deactivate{% else %}Activate{% endif %}
+            </button>
+          </form>
+          {% else %}
+          <span style="color:var(--text-3)">—</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="5" style="text-align:center;color:var(--text-3);padding:40px">No users found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

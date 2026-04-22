@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block title %}Discover – IXOVA{% endblock %}
+{% block content %}
+
+<div class="topbar">
+  <div class="topbar-greeting">
+    <h1>Discover 🔍</h1>
+    <p>Explore internships, freelance work & learning resources</p>
+  </div>
+</div>
+
+<!-- Search & Filters -->
+<div style="display:flex;gap:12px;align-items:center;margin-bottom:20px;flex-wrap:wrap">
+  <form method="get" style="display:flex;gap:10px;flex:1;flex-wrap:wrap;width:100%">
+    <div class="search-bar" style="flex:1;max-width:100%">
+      <span>🔍</span>
+      <input type="text" name="q" value="{{ query }}" placeholder="Search opportunities, companies...">
+    </div>
+    <button type="submit" class="btn btn-primary">Search</button>
+  </form>
+</div>
+
+<div class="filter-tabs">
+  <a href="{% url 'discover' %}{% if query %}?q={{ query }}{% endif %}" class="filter-tab {% if not type_filter %}active{% endif %}">All</a>
+  <a href="?type=internship{% if query %}&q={{ query }}{% endif %}" class="filter-tab {% if type_filter == 'internship' %}active{% endif %}">Internships</a>
+  <a href="?type=freelance{% if query %}&q={{ query }}{% endif %}" class="filter-tab {% if type_filter == 'freelance' %}active{% endif %}">Freelance</a>
+  <a href="?type=gig{% if query %}&q={{ query }}{% endif %}" class="filter-tab {% if type_filter == 'gig' %}active{% endif %}">Gigs</a>
+</div>
+
+<!-- Opportunities -->
+<div class="section-header">
+  <h2 class="section-title">Opportunities <span style="color:var(--text-3);font-size:14px;font-weight:400">({{ opportunities.count }})</span></h2>
+</div>
+
+{% if opportunities %}
+<div class="cards-grid" style="margin-bottom:40px">
+  {% for opp in opportunities %}
+  <div class="opp-card fade-up fade-up-{{ forloop.counter|add:1 }}">
+    <div class="opp-header">
+      <div>
+        <div class="opp-company">{{ opp.company }}</div>
+        <div class="opp-title">{{ opp.title }}</div>
+      </div>
+      {% if opp.is_trending %}<span class="badge badge-trending">🔥</span>{% endif %}
+    </div>
+    <p style="font-size:13px;color:var(--text-3);line-height:1.5">{{ opp.description|truncatewords:18 }}</p>
+    <div class="opp-meta">
+      <span class="badge {% if opp.type == 'internship' %}badge-blue{% elif opp.type == 'freelance' %}badge-green{% else %}badge-orange{% endif %}">
+        {{ opp.get_type_display }}
+      </span>
+      <span class="badge badge-purple">{{ opp.category }}</span>
+    </div>
+    {% if opp.stipend %}<div class="opp-stipend">💰 {{ opp.stipend }}</div>{% endif %}
+    {% if opp.deadline %}<div style="font-size:12px;color:var(--text-3)">📅 Deadline: {{ opp.deadline }}</div>{% endif %}
+    <div class="opp-actions">
+      <a href="{% url 'apply' opp.pk %}" class="btn btn-primary btn-sm">Apply</a>
+      <a href="{% url 'save' opp.pk %}" class="btn btn-secondary btn-sm">🔖</a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="card" style="text-align:center;padding:60px;color:var(--text-3)">
+  <div style="font-size:48px;margin-bottom:16px">🔍</div>
+  <h3 style="margin-bottom:8px">No opportunities found</h3>
+  <p>Try a different search or check back later.</p>
+</div>
+{% endif %}
+
+<!-- Courses -->
+{% if courses %}
+<div class="section-header" style="margin-top:8px">
+  <h2 class="section-title">📚 Learning Resources</h2>
+</div>
+<div class="cards-grid">
+  {% for course in courses %}
+  <div class="opp-card fade-up">
+    <div class="opp-header">
+      <div>
+        <div class="opp-company">{{ course.get_category_display }}</div>
+        <div class="opp-title">{{ course.title }}</div>
+      </div>
+      {% if course.is_premium %}<span class="badge badge-orange">⭐ Premium</span>{% else %}<span class="badge badge-green">Free</span>{% endif %}
+    </div>
+    <p style="font-size:13px;color:var(--text-3)">{{ course.description|truncatewords:15 }}</p>
+    <div style="font-size:12px;color:var(--text-3)">⏱ {{ course.duration }}</div>
+    <a href="#" class="btn btn-secondary btn-sm" style="align-self:flex-start">View Course</a>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}
