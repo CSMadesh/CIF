@@ -12,8 +12,15 @@
   <link rel="stylesheet" href="{% static 'css/pages.css' %}">
   <link rel="stylesheet" href="{% static 'css/chat.css' %}">
   <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
+  <link rel="stylesheet" href="{% static 'css/scroll.css' %}">
 </head>
 <body>
+
+<!-- Page transition overlay -->
+<div id="pageTransition"></div>
+
+<!-- Scroll progress bar -->
+<div id="scrollProgress"></div>
 
 {% if user.is_authenticated %}
 <!-- Mobile topbar -->
@@ -96,11 +103,11 @@
 
 {% if user.is_authenticated %}
 <script>
-  const IXOVA_CHAT_API   = "{% url 'chat_api' %}";
-  const IXOVA_CSRF       = "{{ csrf_token }}";
+  const IXOVA_CHAT_API     = "{% url 'chat_api' %}";
+  const IXOVA_CSRF         = "{{ csrf_token }}";
   const IXOVA_USER_INITIAL = "{{ user.first_name|first|upper|default:user.username|first|upper }}";
 </script>
-<script src="{% static 'js/chat.js' %}"></script>
+<script src="{% static 'js/chat.js' %}?v=2"></script>
 <script>
   const btn     = document.getElementById('hamburgerBtn');
   const sidebar = document.getElementById('sidebar');
@@ -112,6 +119,8 @@
   document.querySelectorAll('.nav-item').forEach(el => el.addEventListener('click', closeSidebar));
 </script>
 {% endif %}
+
+<script src="{% static 'js/scroll.js' %}"></script>
 
 </body>
 </html>

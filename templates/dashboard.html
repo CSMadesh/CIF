@@ -5,8 +5,14 @@
 <!-- Topbar -->
 <div class="topbar fade-up">
   <div class="topbar-greeting">
-    <h1>Good Morning, {{ user.first_name|default:user.username }} 👋</h1>
-    <p>Here's what's happening on your IXOVA today</p>
+    <h1 id="dashGreeting">Hello, {{ user.first_name|default:user.username }}</h1>
+    <div class="dash-meta">
+      <span class="dash-day" id="dashDay"></span>
+      <span class="dash-sep">•</span>
+      <span class="dash-date" id="dashDate"></span>
+      <span class="dash-sep">•</span>
+      <span class="dash-time" id="dashTime"></span>
+    </div>
   </div>
   <div class="topbar-actions">
     <a href="{% url 'discover' %}" class="btn btn-primary btn-sm">+ Explore</a>
@@ -35,35 +41,33 @@
 <!-- Stats Grid -->
 <div class="stats-grid">
   <div class="stat-card fade-up fade-up-1">
-    <div class="stat-icon" style="background:rgba(0,122,255,0.12)">👁️</div>
+    <div class="stat-icon" style="background:rgba(201,168,76,0.12)">👁️</div>
     <div class="stat-value">{{ profile.profile_views }}</div>
     <div class="stat-label">Profile Views</div>
-    <div class="stat-bar"><div class="stat-bar-fill" style="width:{{ profile.profile_views|default:0 }}%;background:var(--blue)"></div></div>
+    <div class="stat-bar"><div class="stat-bar-fill" style="width:{{ profile.profile_views|default:0 }}%"></div></div>
   </div>
   <div class="stat-card fade-up fade-up-2">
-    <div class="stat-icon" style="background:rgba(52,199,89,0.12)">🔖</div>
+    <div class="stat-icon" style="background:rgba(26,107,74,0.12)">🔖</div>
     <div class="stat-value">{{ saved_count }}</div>
     <div class="stat-label">Saved Opportunities</div>
-    <div class="stat-bar"><div class="stat-bar-fill" style="width:{{ saved_count|default:0 }}%;background:var(--green)"></div></div>
+    <div class="stat-bar"><div class="stat-bar-fill" style="width:{{ saved_count|default:0 }}%"></div></div>
   </div>
   <div class="stat-card fade-up fade-up-3">
-    <div class="stat-icon" style="background:rgba(255,149,0,0.12)">✅</div>
+    <div class="stat-icon" style="background:rgba(201,120,26,0.12)">✅</div>
     <div class="stat-value">{{ applications }}</div>
     <div class="stat-label">Applications</div>
-    <div class="stat-bar"><div class="stat-bar-fill" style="width:{{ applications|default:0 }}%;background:var(--orange)"></div></div>
+    <div class="stat-bar"><div class="stat-bar-fill" style="width:{{ applications|default:0 }}%"></div></div>
   </div>
   <div class="stat-card fade-up fade-up-4">
-    <div class="stat-icon" style="background:rgba(175,82,222,0.12)">🤖</div>
+    <div class="stat-icon" style="background:rgba(107,61,138,0.12)">🤖</div>
     <div class="stat-value">{{ profile.ai_score }}</div>
     <div class="stat-label">AI Score</div>
-    <div class="stat-bar"><div class="stat-bar-fill" style="width:{{ profile.ai_score|default:0 }}%;background:var(--purple)"></div></div>
+    <div class="stat-bar"><div class="stat-bar-fill" style="width:{{ profile.ai_score|default:0 }}%"></div></div>
   </div>
 </div>
 
-<!-- Quick Actions + AI Score Row -->
+<!-- Quick Actions + AI Score -->
 <div class="dash-two-col fade-up fade-up-2" style="margin-bottom:32px">
-
-  <!-- Quick Actions -->
   <div class="card">
     <div class="card-header-row">
       <span class="card-title-icon">⚡</span>
@@ -71,33 +75,26 @@
     </div>
     <div class="quick-actions-grid">
       <a href="{% url 'discover' %}" class="quick-action-btn">
-        <div class="qa-icon" style="background:rgba(0,122,255,0.12)">🔍</div>
-        <span>Discover</span>
+        <div class="qa-icon" style="background:rgba(26,107,158,0.12)">🔍</div><span>Discover</span>
       </a>
       <a href="{% url 'ai_tools' %}" class="quick-action-btn">
-        <div class="qa-icon" style="background:rgba(175,82,222,0.12)">🤖</div>
-        <span>AI Tools</span>
+        <div class="qa-icon" style="background:rgba(107,61,138,0.12)">🤖</div><span>AI Tools</span>
       </a>
       <a href="{% url 'chat' %}" class="quick-action-btn">
-        <div class="qa-icon" style="background:rgba(52,199,89,0.12)">💬</div>
-        <span>AI Chat</span>
+        <div class="qa-icon" style="background:rgba(26,107,74,0.12)">💬</div><span>AI Chat</span>
       </a>
       <a href="{% url 'profile' %}" class="quick-action-btn">
-        <div class="qa-icon" style="background:rgba(255,149,0,0.12)">📁</div>
-        <span>Profile</span>
+        <div class="qa-icon" style="background:rgba(201,120,26,0.12)">📁</div><span>Profile</span>
       </a>
       <a href="{% url 'saved' %}" class="quick-action-btn">
-        <div class="qa-icon" style="background:rgba(255,45,85,0.12)">🔖</div>
-        <span>Saved</span>
+        <div class="qa-icon" style="background:rgba(123,45,66,0.12)">🔖</div><span>Saved</span>
       </a>
       <a href="{% url 'profile' %}" class="quick-action-btn">
-        <div class="qa-icon" style="background:rgba(90,200,250,0.12)">⚙️</div>
-        <span>Settings</span>
+        <div class="qa-icon" style="background:rgba(26,122,107,0.12)">⚙️</div><span>Settings</span>
       </a>
     </div>
   </div>
 
-  <!-- AI Score Card -->
   <div class="card ai-score-card">
     <div class="card-header-row">
       <span class="card-title-icon">🎯</span>
@@ -145,14 +142,10 @@
       <span class="badge badge-trending">🔥 Hot</span>
     </div>
     <div class="opp-meta">
-      <span class="badge {% if opp.type == 'internship' %}badge-blue{% elif opp.type == 'freelance' %}badge-green{% else %}badge-orange{% endif %}">
-        {{ opp.get_type_display }}
-      </span>
+      <span class="badge {% if opp.type == 'internship' %}badge-blue{% elif opp.type == 'freelance' %}badge-green{% else %}badge-orange{% endif %}">{{ opp.get_type_display }}</span>
       <span class="badge badge-purple">{{ opp.category }}</span>
     </div>
-    {% if opp.stipend %}
-      <div class="opp-stipend">💰 {{ opp.stipend }}</div>
-    {% endif %}
+    {% if opp.stipend %}<div class="opp-stipend">💰 {{ opp.stipend }}</div>{% endif %}
     <div class="opp-actions">
       <a href="{% url 'apply' opp.pk %}" class="btn btn-primary btn-sm">Apply Now</a>
       <a href="{% url 'save' opp.pk %}" class="btn btn-secondary btn-sm">🔖 Save</a>
@@ -174,7 +167,7 @@
 </div>
 <div class="card fade-up activity-card">
   <div class="tip-item">
-    <div class="tip-icon" style="background:rgba(0,122,255,0.12)">🚀</div>
+    <div class="tip-icon" style="background:rgba(26,107,158,0.12)">🚀</div>
     <div>
       <strong>Welcome to IXOVA!</strong>
       <p style="font-size:13px;color:var(--text-3);margin-top:2px">Complete your profile to unlock more opportunities and improve your AI Score.</p>
@@ -182,7 +175,7 @@
     <a href="{% url 'profile' %}" class="btn btn-ghost btn-sm" style="margin-left:auto;white-space:nowrap">Go →</a>
   </div>
   <div class="tip-item">
-    <div class="tip-icon" style="background:rgba(255,204,0,0.12)">💡</div>
+    <div class="tip-icon" style="background:rgba(201,168,76,0.12)">💡</div>
     <div>
       <strong>Tip: Add your skills</strong>
       <p style="font-size:13px;color:var(--text-3);margin-top:2px">Students with 5+ skills get 3x more profile views from recruiters.</p>
@@ -190,7 +183,7 @@
     <a href="{% url 'profile' %}" class="btn btn-ghost btn-sm" style="margin-left:auto;white-space:nowrap">Add →</a>
   </div>
   <div class="tip-item" style="margin-bottom:0">
-    <div class="tip-icon" style="background:rgba(175,82,222,0.12)">🤖</div>
+    <div class="tip-icon" style="background:rgba(107,61,138,0.12)">🤖</div>
     <div>
       <strong>AI Tools are ready</strong>
       <p style="font-size:13px;color:var(--text-3);margin-top:2px">Use the AI Mentor to get personalized career guidance and growth tips.</p>
@@ -200,195 +193,123 @@
 </div>
 
 <style>
-/* ── Quote Card ───────────────────────────────────────────── */
-.quote-card {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 18px 24px;
-  margin-bottom: 24px;
-  border-radius: var(--radius);
-  background: linear-gradient(135deg, rgba(0,122,255,0.06) 0%, rgba(88,86,214,0.06) 50%, rgba(175,82,222,0.04) 100%);
-  border: 1px solid rgba(0,122,255,0.15);
-  position: relative;
-  overflow: hidden;
-}
-.quote-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0; height: 2px;
-  background: linear-gradient(90deg, var(--blue), var(--indigo), var(--purple));
-}
-.quote-icon {
-  font-size: 28px;
-  color: var(--blue);
-  opacity: 0.5;
-  flex-shrink: 0;
-  line-height: 1;
-}
-.quote-body { flex: 1; }
-.quote-text {
-  font-size: 14px;
-  font-style: italic;
-  color: var(--text-2);
-  line-height: 1.6;
-  margin-bottom: 4px;
-}
-.quote-author {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--blue);
-}
-.quote-badge {
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  color: var(--indigo);
-  background: rgba(88,86,214,0.1);
-  padding: 4px 10px;
-  border-radius: 20px;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-/* ── Dashboard Extras ─────────────────────────────────────── */
-.dash-two-col {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
-
-.card-header-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 18px;
-}
-.card-title-icon { font-size: 18px; }
-.card-section-title { font-size: 16px; font-weight: 700; }
-
-/* Stat bar */
-.stat-bar {
-  height: 4px;
-  background: var(--border);
-  border-radius: 2px;
-  margin-top: 10px;
-  overflow: hidden;
-}
-.stat-bar-fill {
-  height: 100%;
-  border-radius: 2px;
-  max-width: 100%;
-  transition: width 1s var(--ease);
-  position: relative;
-  overflow: hidden;
-}
-.stat-bar-fill::after {
-  content: '';
-  position: absolute;
-  top: 0; left: -100%; width: 100%; height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
-  animation: barShimmer 2s ease-in-out infinite;
-}
-@keyframes barShimmer {
-  0% { left: -100%; }
-  100% { left: 100%; }
-}
-
-/* Quick Actions */
-.quick-actions-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-.quick-action-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 14px 8px;
-  border-radius: var(--radius-sm);
-  background: var(--bg-2);
-  border: 1px solid var(--border);
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-2);
-  transition: var(--transition);
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-}
-.quick-action-btn::before {
-  content: '';
-  position: absolute;
-  top: 0; left: -100%; width: 100%; height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
-  transition: left 0.4s ease;
-}
-.quick-action-btn:hover {
-  background: var(--bg);
-  border-color: var(--blue);
-  color: var(--blue);
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(0,122,255,0.15);
-}
-.quick-action-btn:hover::before { left: 100%; }
-.qa-icon {
-  width: 36px; height: 36px;
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px;
-  transition: var(--transition);
-}
-.quick-action-btn:hover .qa-icon { transform: scale(1.15) rotate(5deg); }
-
-/* AI Score Card */
-.ai-score-body {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-.ai-score-details { flex: 1; }
-.ai-score-label {
-  font-size: 15px;
-  font-weight: 700;
-  margin-bottom: 6px;
-}
-.ai-score-desc {
-  font-size: 13px;
-  color: var(--text-3);
-  line-height: 1.5;
-}
-
-/* Opp card accent bar */
-.opp-card { position: relative; padding-top: 24px; }
-.opp-card-accent {
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 3px;
-  border-radius: var(--radius) var(--radius) 0 0;
-  opacity: 0.7;
-  transition: var(--transition);
-}
-.opp-card:hover .opp-card-accent { opacity: 1; height: 4px; }
-
-/* Empty state */
-.empty-state {
-  text-align: center;
-  padding: 48px;
-  color: var(--text-3);
-}
-.empty-icon { font-size: 48px; margin-bottom: 12px; }
-
-/* Activity card tip-item tweak */
-.activity-card .tip-item { align-items: center; }
-
-@media (max-width: 768px) {
-  .dash-two-col { grid-template-columns: 1fr; }
-  .quick-actions-grid { grid-template-columns: repeat(3, 1fr); }
-  .ai-score-body { flex-direction: column; text-align: center; }
+.dash-meta{display:flex;align-items:center;gap:8px;margin-top:5px;font-size:13px;color:var(--text-3);}
+.dash-sep{color:var(--gold);opacity:0.5;}
+.dash-day{font-weight:700;color:var(--gold-dark);letter-spacing:0.5px;}
+.dash-date{font-weight:500;}
+.dash-time{font-family:'Playfair Display',serif;font-weight:700;font-size:14px;color:var(--gold);background:rgba(201,168,76,0.08);padding:2px 10px;border-radius:20px;border:1px solid rgba(201,168,76,0.2);letter-spacing:1px;animation:timePulse 2s ease-in-out infinite;}
+@keyframes timePulse{0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,0.25);}50%{box-shadow:0 0 0 5px rgba(201,168,76,0);}}
+.quote-card{display:flex;align-items:center;gap:16px;padding:18px 24px;margin-bottom:24px;border-radius:var(--radius);background:linear-gradient(135deg,rgba(201,168,76,0.06),rgba(26,107,74,0.04));border:var(--gold-border);position:relative;overflow:hidden;animation:slideInLeft 0.6s ease 0.1s both;}
+@keyframes slideInLeft{from{opacity:0;transform:translateX(-30px);}to{opacity:1;transform:translateX(0);}}
+.quote-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad-gold);}
+.quote-icon{font-size:28px;color:var(--gold);opacity:0.6;flex-shrink:0;display:inline-block;animation:spinSlow 8s linear infinite;}
+@keyframes spinSlow{0%,100%{transform:rotate(0deg);}50%{transform:rotate(180deg) scale(1.2);}}
+.quote-body{flex:1;}
+.quote-text{font-size:14px;font-style:italic;color:var(--text-2);line-height:1.6;margin-bottom:4px;}
+.quote-author{font-size:12px;font-weight:600;color:var(--gold-dark);}
+.quote-badge{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--gold-dark);background:rgba(201,168,76,0.1);padding:4px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0;border:var(--gold-border);}
+.stats-grid{perspective:1000px;}
+.stat-card{transform-style:preserve-3d;animation:card3dIn 0.6s cubic-bezier(0.34,1.56,0.64,1) both;}
+.stat-card:nth-child(1){animation-delay:0.05s;}.stat-card:nth-child(2){animation-delay:0.15s;}.stat-card:nth-child(3){animation-delay:0.25s;}.stat-card:nth-child(4){animation-delay:0.35s;}
+@keyframes card3dIn{from{opacity:0;transform:rotateX(40deg) translateY(30px) scale(0.9);}to{opacity:1;transform:rotateX(0deg) translateY(0) scale(1);}}
+.dash-two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.card-header-row{display:flex;align-items:center;gap:8px;margin-bottom:18px;}
+.card-title-icon{font-size:18px;}.card-section-title{font-size:16px;font-weight:700;}
+.stat-bar{height:4px;background:var(--border);border-radius:2px;margin-top:10px;overflow:hidden;}
+.stat-bar-fill{height:100%;border-radius:2px;max-width:100%;background:var(--grad-gold);position:relative;overflow:hidden;width:0;transition:width 1.2s cubic-bezier(0.4,0,0.2,1);}
+.stat-bar-fill::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.5),transparent);animation:barShimmer 2s ease-in-out infinite;}
+@keyframes barShimmer{0%{left:-100%;}100%{left:100%;}}
+.quick-actions-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.quick-action-btn{display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 8px;border-radius:var(--radius-sm);background:var(--bg-2);border:var(--gold-border);font-size:12px;font-weight:600;color:var(--text-2);position:relative;overflow:hidden;transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);}
+.quick-action-btn::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(201,168,76,0.15),transparent);transition:left 0.4s ease;}
+.quick-action-btn:hover{background:var(--bg);border-color:var(--gold);color:var(--gold-dark);transform:translateY(-4px) scale(1.05);box-shadow:0 8px 24px rgba(201,168,76,0.2);}
+.quick-action-btn:hover::before{left:100%;}
+.qa-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;border:var(--gold-border);}
+.quick-action-btn:hover .qa-icon{transform:scale(1.2) rotate(8deg);}
+.ai-score-body{display:flex;align-items:center;gap:20px;}
+.ai-score-details{flex:1;}
+.ai-score-label{font-size:15px;font-weight:700;margin-bottom:6px;}
+.ai-score-desc{font-size:13px;color:var(--text-3);line-height:1.5;}
+.opp-card{position:relative;padding-top:24px;transform-style:preserve-3d;}
+.opp-card-accent{position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius) var(--radius) 0 0;opacity:0.8;}
+.opp-card:hover .opp-card-accent{height:4px;opacity:1;}
+.cards-grid .opp-card{animation:card3dIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both;}
+.cards-grid .opp-card:nth-child(1){animation-delay:0.1s;}.cards-grid .opp-card:nth-child(2){animation-delay:0.2s;}.cards-grid .opp-card:nth-child(3){animation-delay:0.3s;}.cards-grid .opp-card:nth-child(4){animation-delay:0.4s;}.cards-grid .opp-card:nth-child(5){animation-delay:0.5s;}.cards-grid .opp-card:nth-child(6){animation-delay:0.6s;}
+.empty-state{text-align:center;padding:48px;color:var(--text-3);}
+.empty-icon{font-size:48px;margin-bottom:12px;}
+.activity-card .tip-item{align-items:center;}
+@media(max-width:768px){
+  .dash-two-col{grid-template-columns:1fr;}
+  .quick-actions-grid{grid-template-columns:repeat(3,1fr);}
+  .ai-score-body{flex-direction:column;text-align:center;}
+  .dash-meta{flex-wrap:wrap;gap:4px;}
 }
 </style>
+
+<script>
+(function(){
+  var name  = '{{ user.first_name|default:user.username }}';
+  var days  = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var months= ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function pad(n){return n<10?'0'+n:n;}
+  function getGreeting(h){
+    if(h>=5&&h<12)  return 'Good Morning';
+    if(h>=12&&h<17) return 'Good Afternoon';
+    if(h>=17&&h<21) return 'Good Evening';
+    return 'Good Night';
+  }
+  function getEmoji(h){
+    if(h>=5&&h<12)  return '\u2600\ufe0f';
+    if(h>=12&&h<17) return '\ud83c\udf24\ufe0f';
+    if(h>=17&&h<21) return '\ud83c\udf07';
+    return '\ud83c\udf19';
+  }
+  function tick(){
+    var now=new Date(),h=now.getHours(),m=now.getMinutes(),s=now.getSeconds();
+    var ampm=h>=12?'PM':'AM',h12=h%12||12;
+    var g=document.getElementById('dashGreeting');
+    var d=document.getElementById('dashDay');
+    var dt=document.getElementById('dashDate');
+    var t=document.getElementById('dashTime');
+    if(g)  g.textContent =getGreeting(h)+', '+name+' '+getEmoji(h);
+    if(d)  d.textContent =days[now.getDay()];
+    if(dt) dt.textContent=months[now.getMonth()]+' '+now.getDate()+', '+now.getFullYear();
+    if(t)  t.textContent =h12+':'+pad(m)+':'+pad(s)+' '+ampm;
+  }
+  tick();
+  setInterval(tick,1000);
+})();
+
+window.addEventListener('load',function(){
+  setTimeout(function(){
+    document.querySelectorAll('.stat-bar-fill').forEach(function(el){
+      var w=el.style.width;
+      el.style.width='0';
+      setTimeout(function(){el.style.width=w;},50);
+    });
+  },400);
+});
+
+document.querySelectorAll('.stat-card').forEach(function(card){
+  card.addEventListener('mousemove',function(e){
+    var r=card.getBoundingClientRect();
+    var dx=(e.clientX-r.left-r.width/2)/(r.width/2);
+    var dy=(e.clientY-r.top-r.height/2)/(r.height/2);
+    card.style.transform='translateY(-8px) rotateX('+(-dy*8)+'deg) rotateY('+(dx*8)+'deg) scale(1.03)';
+    card.style.boxShadow='0 20px 40px rgba(13,27,42,0.2),0 0 20px rgba(201,168,76,0.15)';
+  });
+  card.addEventListener('mouseleave',function(){card.style.transform='';card.style.boxShadow='';});
+});
+
+document.querySelectorAll('.opp-card').forEach(function(card){
+  card.addEventListener('mousemove',function(e){
+    var r=card.getBoundingClientRect();
+    var dx=(e.clientX-r.left-r.width/2)/(r.width/2);
+    var dy=(e.clientY-r.top-r.height/2)/(r.height/2);
+    card.style.transform='translateY(-8px) rotateX('+(-dy*6)+'deg) rotateY('+(dx*6)+'deg) scale(1.01)';
+  });
+  card.addEventListener('mouseleave',function(){card.style.transform='';});
+});
+</script>
 
 {% endblock %}

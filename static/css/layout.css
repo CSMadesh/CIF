@@ -125,6 +125,7 @@
   padding:32px;
   background: var(--bg-2);
   position:relative;
+  transition: background 0.35s ease;
 }
 .main::before {
   content:'';

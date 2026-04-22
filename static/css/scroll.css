@@ -1,0 +1,56 @@
+/* ═══════════════════════════════════════════
+   IXOVA — SCROLL ANIMATIONS
+   ═══════════════════════════════════════════ */
+
+/* ── Base reveal state ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.7s cubic-bezier(0.4,0,0.2,1),
+              transform 0.7s cubic-bezier(0.4,0,0.2,1);
+}
+.reveal.reveal-left  { transform: translateX(-50px) translateY(0); }
+.reveal.reveal-right { transform: translateX(50px)  translateY(0); }
+.reveal.reveal-scale { transform: scale(0.85) translateY(0); }
+.reveal.reveal-flip  { transform: rotateX(30deg) translateY(30px); opacity:0; }
+
+/* ── Visible state ── */
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0) translateX(0) scale(1) rotateX(0deg);
+}
+
+/* ── Stagger delays ── */
+.reveal-d1 { transition-delay: 0.05s; }
+.reveal-d2 { transition-delay: 0.12s; }
+.reveal-d3 { transition-delay: 0.19s; }
+.reveal-d4 { transition-delay: 0.26s; }
+.reveal-d5 { transition-delay: 0.33s; }
+.reveal-d6 { transition-delay: 0.40s; }
+
+/* ── Smooth page scroll ── */
+html { scroll-behavior: smooth; }
+
+/* ── Page transition overlay ── */
+#pageTransition {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #0d1b2a, #1a2d42);
+  z-index: 99999;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+#pageTransition.active { opacity: 1; pointer-events: all; }
+
+/* ── Scroll progress bar ── */
+#scrollProgress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 3px;
+  width: 0%;
+  background: linear-gradient(90deg, #a07830, #e8c97a, #c9a84c);
+  z-index: 99998;
+  transition: width 0.1s linear;
+  box-shadow: 0 0 8px rgba(201,168,76,0.6);
+}

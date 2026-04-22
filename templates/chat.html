@@ -46,6 +46,7 @@
 
   <!-- Input -->
   <div class="chat-input-bar">
+    <button id="voiceToggleBtn" title="Mute voice" style="background:none;border:1px solid var(--gold-border);border-radius:8px;cursor:pointer;font-size:18px;padding:6px 10px;color:var(--gold);flex-shrink:0;">🔊</button>
     <input type="text" id="chatInput" class="chat-input" placeholder="Ask me anything…" autocomplete="off" maxlength="500">
     <button class="chat-send-btn" id="chatSendBtn" onclick="sendMessage()">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -60,6 +61,56 @@
 const CHAT_API = "{% url 'chat_api' %}";
 const CSRF    = "{{ csrf_token }}";
 
+// ── Voice TTS ──────────────────────────────────────────────
+const synth = window.speechSynthesis;
+let voiceEnabled = true;
+
+function pickVoice() {
+  var all = synth ? synth.getVoices() : [];
+  return all.find(v => v.lang.startsWith('en') && /google us english/i.test(v.name))
+      || all.find(v => v.lang.startsWith('en') && /google/i.test(v.name))
+      || all.find(v => v.lang === 'en-US')
+      || all.find(v => v.lang.startsWith('en'))
+      || all[0] || null;
+}
+
+function speak(text) {
+  if (!synth || !voiceEnabled) return;
+  var clean = text
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/[#*_`>•]/g, '')
+    .replace(/\s+/g, ' ').trim();
+  if (!clean) return;
+  synth.cancel();
+  function fire() {
+    var u = new SpeechSynthesisUtterance(clean);
+    u.lang = 'en-US'; u.rate = 1.0; u.pitch = 1.1; u.volume = 1.0;
+    var v = pickVoice(); if (v) u.voice = v;
+    synth.speak(u);
+  }
+  if (synth.getVoices().length > 0) { fire(); }
+  else { synth.addEventListener('voiceschanged', function h(){ synth.removeEventListener('voiceschanged',h); fire(); }); }
+}
+
+var vBtn = document.getElementById('voiceToggleBtn');
+if (vBtn) {
+  vBtn.addEventListener('click', function(){
+    voiceEnabled = !voiceEnabled;
+    vBtn.textContent = voiceEnabled ? '\uD83D\uDD0A' : '\uD83D\uDD07';
+    vBtn.title = voiceEnabled ? 'Mute voice' : 'Unmute voice';
+    if (!voiceEnabled && synth) synth.cancel();
+  });
+}
+
+// Speak welcome on page load
+window.addEventListener('load', function(){
+  setTimeout(function(){
+    speak("Hey! I'm your IXOVA Assistant. Ask me about opportunities, courses, your applications, or anything about the platform!");
+  }, 500);
+});
+
 function renderMarkdown(text) {
   return text
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
@@ -67,7 +118,6 @@ function renderMarkdown(text) {
     .replace(/\n/g, '<br>');
 }
 
-// Render history bubbles
 document.querySelectorAll('.bot-bubble[data-raw]').forEach(el => {
   el.innerHTML = renderMarkdown(el.dataset.raw);
   el.removeAttribute('data-raw');
@@ -83,7 +133,6 @@ function appendMsg(text, role) {
   const box = document.getElementById('chatMessages');
   const wrap = document.createElement('div');
   wrap.className = `chat-msg ${role}`;
-
   if (role === 'user') {
     wrap.innerHTML = `
       <div class="chat-bubble user-bubble">${text}</div>
@@ -95,41 +144,26 @@ function appendMsg(text, role) {
   }
   box.appendChild(wrap);
   scrollBottom();
-  return wrap;
 }
 
 function showTyping() {
   const box = document.getElementById('chatMessages');
   const wrap = document.createElement('div');
-  wrap.className = 'chat-msg bot';
-  wrap.id = 'typingIndicator';
+  wrap.className = 'chat-msg bot'; wrap.id = 'typingIndicator';
   wrap.innerHTML = `
     <div class="chat-avatar bot-avatar">🤖</div>
-    <div class="chat-bubble bot-bubble typing-dots">
-      <span></span><span></span><span></span>
-    </div>`;
-  box.appendChild(wrap);
-  scrollBottom();
+    <div class="chat-bubble bot-bubble typing-dots"><span></span><span></span><span></span></div>`;
+  box.appendChild(wrap); scrollBottom();
 }
-
-function removeTyping() {
-  const el = document.getElementById('typingIndicator');
-  if (el) el.remove();
-}
+function removeTyping() { const el = document.getElementById('typingIndicator'); if (el) el.remove(); }
 
 async function sendMessage() {
   const input = document.getElementById('chatInput');
   const btn   = document.getElementById('chatSendBtn');
   const text  = input.value.trim();
   if (!text) return;
-
-  input.value = '';
-  input.disabled = true;
-  btn.disabled = true;
-
-  appendMsg(text, 'user');
-  showTyping();
-
+  input.value = ''; input.disabled = true; btn.disabled = true;
+  appendMsg(text, 'user'); showTyping();
   try {
     const res = await fetch(CHAT_API, {
       method: 'POST',
@@ -138,14 +172,14 @@ async function sendMessage() {
     });
     const data = await res.json();
     removeTyping();
-    appendMsg(data.reply || 'Sorry, something went wrong.', 'bot');
+    const reply = data.reply || 'Sorry, something went wrong.';
+    appendMsg(reply, 'bot');
+    speak(reply);
   } catch {
     removeTyping();
     appendMsg('Connection error. Please try again.', 'bot');
   } finally {
-    input.disabled = false;
-    btn.disabled = false;
-    input.focus();
+    input.disabled = false; btn.disabled = false; input.focus();
   }
 }
 
