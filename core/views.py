@@ -609,8 +609,12 @@ def forgot_password(request):
             _log.info(f'OTP email sent successfully to {user.email}')
         except Exception as e:
             error_msg = str(e)
-            _log.error(f'OTP email failed for {email}: {error_msg}')
-            messages.error(request, f'Could not send email. Please try again later.')
+            _log.error(f'OTP email failed for {email}: {error_msg}', exc_info=True)
+            # Show detailed error in DEBUG mode, generic message in production
+            if django_settings.DEBUG:
+                messages.error(request, f'Email error: {error_msg}')
+            else:
+                messages.error(request, 'Could not send email. Please try again later.')
             return render(request, 'forgot_password.html')
 
         PasswordResetOTP.objects.filter(user=user, is_used=False).update(is_used=True)
