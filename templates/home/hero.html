@@ -1,0 +1,102 @@
+<!-- home/hero.html -->
+<div class="hw-hero">
+
+  <div class="hw-badge">
+    <span class="hw-badge-dot"></span>
+    AI-Powered Student Platform
+    <span class="hw-badge-ring"></span>
+  </div>
+
+  <h1 class="hw-title">
+    <span class="hw-word" style="--d:0.1s">Learn.</span>
+    <span class="hw-word" style="--d:0.3s">Earn.</span>
+    <span class="hw-word hw-word-glow" style="--d:0.5s">Grow.</span>
+  </h1>
+
+  <p class="hw-desc" id="hwDesc"></p>
+  <span class="hw-cursor">|</span>
+
+  <div class="hw-cta">
+    <a href="{% url 'register' %}" class="hw-cta-primary">
+      <span class="hw-cta-text">Start for Free</span>
+      <span class="hw-arrow">→</span>
+      <span class="hw-shine"></span>
+      <span class="hw-cta-border"></span>
+    </a>
+    <a href="{% url 'login' %}" class="hw-cta-ghost">
+      Sign In
+      <span class="hw-ghost-shine"></span>
+    </a>
+  </div>
+
+  <div class="hw-stats">
+    <div class="hw-stat">
+      <span class="hw-stat-num" data-target="500">0</span><span class="hw-stat-plus">+</span>
+      <span class="hw-stat-lbl">Students</span>
+    </div>
+    <div class="hw-stat-sep"></div>
+    <div class="hw-stat">
+      <span class="hw-stat-num" data-target="120">0</span><span class="hw-stat-plus">+</span>
+      <span class="hw-stat-lbl">Opportunities</span>
+    </div>
+    <div class="hw-stat-sep"></div>
+    <div class="hw-stat">
+      <span class="hw-stat-num" data-target="50">0</span><span class="hw-stat-plus">+</span>
+      <span class="hw-stat-lbl">Courses</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══ AI HOLOGRAM SECTION ═══ -->
+<div class="hw-ai-section" id="hwAiSection">
+
+  <div class="hw-ai-title">
+    <span class="hw-ai-title-line"></span>
+    <span class="hw-ai-title-text">Powered by Artificial Intelligence</span>
+    <span class="hw-ai-title-line"></span>
+  </div>
+
+  <!-- Hologram stage -->
+  <div class="hw-holo-stage">
+    <canvas id="holoCanvas"></canvas>
+    <div class="hw-holo-label" id="holoLabel">Scanning Neural Network...</div>
+  </div>
+
+  <!-- AI cards -->
+  <div class="hw-ai-cards" id="aiCards">
+    <div class="hw-ai-card hw-aic-1">
+      <div class="hw-aic-icon">🧠</div>
+      <div class="hw-aic-body">
+        <strong>AI Mentor</strong>
+        <p>Your personal AI career guide that analyses your profile, suggests improvements and gives real-time feedback on every step of your journey.</p>
+      </div>
+      <span class="hw-aic-glow"></span>
+    </div>
+    <div class="hw-ai-card hw-aic-2">
+      <div class="hw-aic-icon">📊</div>
+      <div class="hw-aic-body">
+        <strong>Smart Profile Scorer</strong>
+        <p>Our AI engine scores your profile out of 100, identifies gaps and tells you exactly what to fix to attract top recruiters and opportunities.</p>
+      </div>
+      <span class="hw-aic-glow"></span>
+    </div>
+    <div class="hw-ai-card hw-aic-3">
+      <div class="hw-aic-icon">🎯</div>
+      <div class="hw-aic-body">
+        <strong>Opportunity Matching</strong>
+        <p>AI scans hundreds of internships, freelance gigs and courses then matches them to your skills, goals and availability in real time.</p>
+      </div>
+      <span class="hw-aic-glow"></span>
+    </div>
+    <div class="hw-ai-card hw-aic-4">
+      <div class="hw-aic-icon">💬</div>
+      <div class="hw-aic-body">
+        <strong>AI Chat Assistant</strong>
+        <p>Ask anything — career advice, skill tips, application help. The IXOVA AI chat is available 24/7 and learns from your interactions.</p>
+      </div>
+      <span class="hw-aic-glow"></span>
+    </div>
+  </div>
+
+</div>

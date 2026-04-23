@@ -1,0 +1,204 @@
+<!-- home/js/robot_jet.html -->
+<script>
+/* ── draw jet plane ── */
+RX.drawJet = function(x, y, scale, angle, alpha, thrustFlicker){
+  const ctx = RX.ctx;
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+  ctx.scale(scale, scale);
+
+  /* ── EXHAUST TRAIL ── */
+  const tf = thrustFlicker;
+  const tLen = 40 + tf * 30;
+  const tg = ctx.createLinearGradient(-tLen, 0, 0, 0);
+  tg.addColorStop(0, 'rgba(255,255,255,0)');
+  tg.addColorStop(0.5, `rgba(255,255,255,${0.15 + tf*0.2})`);
+  tg.addColorStop(1, `rgba(255,255,255,${0.4 + tf*0.3})`);
+  ctx.beginPath();
+  ctx.moveTo(-tLen, 0);
+  ctx.lineTo(-10, -6 - tf*4);
+  ctx.lineTo(-10,  6 + tf*4);
+  ctx.closePath();
+  ctx.fillStyle = tg;
+  ctx.fill();
+
+  /* inner hot core */
+  const cg = ctx.createLinearGradient(-20, 0, -10, 0);
+  cg.addColorStop(0, 'rgba(255,255,255,0)');
+  cg.addColorStop(1, `rgba(255,255,255,${0.6 + tf*0.3})`);
+  ctx.beginPath();
+  ctx.moveTo(-20, 0);
+  ctx.lineTo(-10, -3);
+  ctx.lineTo(-10,  3);
+  ctx.closePath();
+  ctx.fillStyle = cg;
+  ctx.fill();
+
+  /* ── FUSELAGE ── */
+  const fg = ctx.createLinearGradient(0, -14, 0, 14);
+  fg.addColorStop(0, 'rgba(255,255,255,0.18)');
+  fg.addColorStop(0.5, 'rgba(255,255,255,0.08)');
+  fg.addColorStop(1, 'rgba(255,255,255,0.14)');
+  ctx.beginPath();
+  ctx.moveTo(60, 0);          /* nose */
+  ctx.lineTo(30, -8);
+  ctx.lineTo(-10, -10);
+  ctx.lineTo(-20, -6);
+  ctx.lineTo(-20,  6);
+  ctx.lineTo(-10,  10);
+  ctx.lineTo(30,   8);
+  ctx.closePath();
+  ctx.fillStyle = fg;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+
+  /* ── COCKPIT glass ── */
+  const ckg = ctx.createRadialGradient(38, -3, 0, 38, -3, 14);
+  ckg.addColorStop(0, 'rgba(255,255,255,0.25)');
+  ckg.addColorStop(1, 'rgba(255,255,255,0.04)');
+  ctx.beginPath();
+  ctx.moveTo(58, 0);
+  ctx.lineTo(38, -8);
+  ctx.lineTo(22, -6);
+  ctx.lineTo(22,  0);
+  ctx.closePath();
+  ctx.fillStyle = ckg;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+  ctx.lineWidth = 0.8;
+  ctx.stroke();
+
+  /* ── MAIN WINGS ── */
+  const wg = ctx.createLinearGradient(0, 0, 0, -50);
+  wg.addColorStop(0, 'rgba(255,255,255,0.12)');
+  wg.addColorStop(1, 'rgba(255,255,255,0.04)');
+  /* left wing */
+  ctx.beginPath();
+  ctx.moveTo(10, -10);
+  ctx.lineTo(-5, -48);
+  ctx.lineTo(-18, -48);
+  ctx.lineTo(-20, -10);
+  ctx.closePath();
+  ctx.fillStyle = wg;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  /* right wing */
+  ctx.beginPath();
+  ctx.moveTo(10,  10);
+  ctx.lineTo(-5,  48);
+  ctx.lineTo(-18,  48);
+  ctx.lineTo(-20,  10);
+  ctx.closePath();
+  ctx.fillStyle = wg;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  /* ── TAIL FINS ── */
+  /* top fin */
+  ctx.beginPath();
+  ctx.moveTo(-8, -10);
+  ctx.lineTo(-18, -28);
+  ctx.lineTo(-20, -10);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(255,255,255,0.1)';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+  ctx.lineWidth = 0.8;
+  ctx.stroke();
+  /* bottom fin */
+  ctx.beginPath();
+  ctx.moveTo(-8,  10);
+  ctx.lineTo(-18,  28);
+  ctx.lineTo(-20,  10);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(255,255,255,0.1)';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+  ctx.lineWidth = 0.8;
+  ctx.stroke();
+
+  /* ── ENGINE PODS ── */
+  [-8, 8].forEach(oy=>{
+    ctx.beginPath();
+    ctx.roundRect(-22, oy-4, 14, 8, 3);
+    ctx.fillStyle = 'rgba(255,255,255,0.1)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+  });
+
+  /* ── GLASS SHEEN ── */
+  const sg = ctx.createLinearGradient(-20, -14, 60, 0);
+  sg.addColorStop(0, 'rgba(255,255,255,0)');
+  sg.addColorStop(0.4, 'rgba(255,255,255,0.12)');
+  sg.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.beginPath();
+  ctx.moveTo(60, 0); ctx.lineTo(30, -8); ctx.lineTo(-10, -10);
+  ctx.lineTo(-20, -6); ctx.lineTo(-20, 6); ctx.lineTo(-10, 10);
+  ctx.lineTo(30, 8); ctx.closePath();
+  ctx.fillStyle = sg;
+  ctx.fill();
+
+  ctx.restore();
+};
+
+/* ── draw jet trail ── */
+RX.drawJetTrail = function(){
+  const ctx = RX.ctx;
+  const pts = RX.jet.trailPoints;
+  if(pts.length < 2) return;
+  for(let i=1; i<pts.length; i++){
+    const a = (i/pts.length) * 0.18;
+    ctx.beginPath();
+    ctx.moveTo(pts[i-1].x, pts[i-1].y);
+    ctx.lineTo(pts[i].x, pts[i].y);
+    ctx.strokeStyle = `rgba(255,255,255,${a})`;
+    ctx.lineWidth = (i/pts.length)*3;
+    ctx.stroke();
+  }
+};
+
+/* ── tick jet fly ── */
+RX.tickJetFly = function(dt){
+  const j = RX.jet;
+  const W = RX.W, H = RX.H;
+
+  j.flyT = Math.min(1, j.flyT + dt * 0.00025);
+  j.thrustFlicker = 0.5 + 0.5*Math.sin(Date.now()*0.02);
+
+  /* path: start centre, arc up-right, exit top-right */
+  const t = j.flyT;
+  const startX = W/2, startY = H/2;
+  const ctrlX  = W*0.75, ctrlY = H*0.1;
+  const endX   = W+100,  endY  = -80;
+
+  /* quadratic bezier */
+  j.x = (1-t)*(1-t)*startX + 2*(1-t)*t*ctrlX + t*t*endX;
+  j.y = (1-t)*(1-t)*startY + 2*(1-t)*t*ctrlY + t*t*endY;
+
+  /* angle = tangent of bezier */
+  const dx = 2*(1-t)*(ctrlX-startX) + 2*t*(endX-ctrlX);
+  const dy = 2*(1-t)*(ctrlY-startY) + 2*t*(endY-ctrlY);
+  j.angle = Math.atan2(dy, dx);
+
+  /* trail */
+  j.trailPoints.push({x:j.x, y:j.y});
+  if(j.trailPoints.length > 60) j.trailPoints.shift();
+
+  /* spawn exhaust sparks */
+  if(Math.random()<0.5){
+    const ex = j.x - Math.cos(j.angle)*50;
+    const ey = j.y - Math.sin(j.angle)*50;
+    RX.spawnSparks(ex, ey, 2, 3);
+  }
+};
+</script>

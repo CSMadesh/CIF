@@ -1,0 +1,175 @@
+<!-- home/js/robot_main.html -->
+<script>
+(function(){
+  const canvas = document.getElementById('robotCanvas');
+  if(!canvas) return;
+
+  RX.canvas = canvas;
+  RX.ctx    = canvas.getContext('2d');
+
+  function resize(){
+    RX.W = canvas.width  = canvas.offsetWidth;
+    RX.H = canvas.height = canvas.offsetHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  /* ── phase durations (ms) ── */
+  const DUR = {
+    assemble:  3200,
+    hold:       800,   /* robot stands idle briefly */
+    dismantle: 1400,
+    transform:  800,   /* jet materialises */
+    fly:       2200,
+    done:         0,
+  };
+
+  let startTime = null;
+  let lastNow   = 0;
+
+  /* ── MAIN LOOP ── */
+  function loop(now){
+    if(!startTime) startTime = now;
+    const dt = now - lastNow;
+    lastNow  = now;
+    RX.elapsed = now - startTime;
+
+    const ctx = RX.ctx;
+    const W = RX.W, H = RX.H;
+
+    ctx.clearRect(0, 0, W, H);
+
+    /* bg grid */
+    ctx.strokeStyle = 'rgba(255,255,255,0.025)';
+    ctx.lineWidth   = 0.5;
+    for(let x=0; x<W; x+=20){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+    for(let y=0; y<H; y+=20){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+
+    /* ── ambient ticks ── */
+    RX.eyeGlow    += 0.04 * RX.eyeDir;
+    if(RX.eyeGlow>1||RX.eyeGlow<0) RX.eyeDir *= -1;
+    RX.rotorAngle += 0.05;
+    if(RX.parts.eyes.t>0.5){ RX.scanY += 1.5*RX.scanDir; if(Math.abs(RX.scanY)>55) RX.scanDir*=-1; }
+    RX.floatY = Math.sin(RX.elapsed*0.001)*4;
+
+    /* ── phase machine ── */
+    const pe = RX.elapsed - RX.phaseStart;
+
+    if(RX.phase === 'assemble'){
+      /* update part timers */
+      Object.keys(RX.parts).forEach(k=>{
+        const p = RX.parts[k];
+        if(RX.elapsed > p.delay) p.t = Math.min(p.t+0.035, 1);
+      });
+      /* spawn sparks + circuits during build */
+      if(RX.elapsed>200 && RX.elapsed<2600 && Math.random()<0.25)
+        RX.spawnSparks(RX.CX()+(-70+Math.random()*140), RX.CY()+(-90+Math.random()*180), 3);
+      if(RX.elapsed>700 && RX.circuits.length<28 && Math.random()<0.07){
+        const dirs=['r','l','u','d'];
+        RX.addCircuit(RX.CX()+(-110+Math.random()*220), RX.CY()+(-110+Math.random()*220),
+          dirs[Math.floor(Math.random()*4)], 20+Math.random()*65);
+      }
+      /* body scan */
+      if(RX.elapsed>2200){
+        const sp = Math.min(1,(RX.elapsed-2200)/1000);
+        const sy = RX.CY()-120+240*sp;
+        const sg = ctx.createLinearGradient(RX.CX()-80,sy-15,RX.CX()-80,sy+15);
+        sg.addColorStop(0,'rgba(255,255,255,0)');
+        sg.addColorStop(0.5,`rgba(255,255,255,${0.07*(1-sp)})`);
+        sg.addColorStop(1,'rgba(255,255,255,0)');
+        ctx.fillStyle=sg; ctx.fillRect(RX.CX()-80,sy-15,160,30);
+      }
+      RX.setStatus(Math.min(60, Math.round((RX.elapsed/DUR.assemble)*60)));
+      RX.tickCircuits(); RX.drawCircuits(ctx);
+      RX.tickSparks();   RX.drawSparks();
+      RX.drawRobot(1, {});
+      if(pe >= DUR.assemble){ RX.phase='hold'; RX.phaseStart=RX.elapsed; }
+    }
+
+    else if(RX.phase === 'hold'){
+      RX.setStatus(62);
+      RX.drawRobot(1, {});
+      if(pe >= DUR.hold){ RX.phase='dismantle'; RX.phaseStart=RX.elapsed; }
+    }
+
+    else if(RX.phase === 'dismantle'){
+      const prog = Math.min(1, pe/DUR.dismantle);
+      RX.setStatus(62 + Math.round(prog*18));
+      RX.tickDismantle(dt);
+      RX.tickSparks(); RX.drawSparks();
+      RX.drawDismantle(prog);
+      if(prog >= 1){ RX.phase='transform'; RX.phaseStart=RX.elapsed;
+        /* init jet at centre */
+        RX.jet.x=RX.CX(); RX.jet.y=RX.CY();
+        RX.jet.scale=0; RX.jet.flyT=0; RX.jet.trailPoints=[];
+      }
+    }
+
+    else if(RX.phase === 'transform'){
+      const prog = Math.min(1, pe/DUR.transform);
+      RX.setStatus(80 + Math.round(prog*12));
+      RX.jet.scale = RX.easeOut(prog);
+      RX.jet.thrustFlicker = 0.5+0.5*Math.sin(RX.elapsed*0.02);
+      /* burst sparks as jet materialises */
+      if(Math.random()<0.5)
+        RX.spawnSparks(RX.CX()+(-40+Math.random()*80), RX.CY()+(-40+Math.random()*80), 4, 5);
+      RX.tickSparks(); RX.drawSparks();
+      RX.drawJet(RX.CX(), RX.CY(), RX.jet.scale, 0, 1, RX.jet.thrustFlicker);
+      if(prog >= 1){ RX.phase='fly'; RX.phaseStart=RX.elapsed; }
+    }
+
+    else if(RX.phase === 'fly'){
+      const prog = Math.min(1, pe/DUR.fly);
+      RX.setStatus(92 + Math.round(prog*8));
+      RX.tickJetFly(dt);
+      RX.tickSparks(); RX.drawSparks();
+      RX.drawJetTrail();
+      /* fade out near end */
+      const fadeAlpha = prog > 0.75 ? 1-(prog-0.75)/0.25 : 1;
+      RX.drawJet(RX.jet.x, RX.jet.y, 1, RX.jet.angle, fadeAlpha, RX.jet.thrustFlicker);
+      if(prog >= 1){ RX.phase='done'; RX.phaseStart=RX.elapsed; }
+    }
+
+    else if(RX.phase === 'done'){
+      RX.setStatus(100);
+      /* reveal AI cards once */
+      if(!RX.revealed){
+        RX.revealed = true;
+        const st = document.getElementById('robotStatusText');
+        if(st) st.textContent = 'AI Systems Online ✓';
+        document.querySelectorAll('.hw-ai-card').forEach((card,i)=>{
+          setTimeout(()=>card.classList.add('hw-revealed'), i*150);
+        });
+      }
+      /* draw starfield after jet exits */
+      drawStarfield(pe);
+    }
+
+    requestAnimationFrame(loop);
+  }
+
+  /* ── starfield after jet exits ── */
+  function drawStarfield(t){
+    const ctx = RX.ctx;
+    const count = Math.min(80, Math.floor(t/30));
+    /* seed-based so stars don't jump */
+    for(let i=0;i<count;i++){
+      const sx = ((i*137.5)%1)*RX.W;
+      const sy = ((i*97.3)%1)*RX.H;
+      const sa = 0.1+((i*53.7)%1)*0.4;
+      const sr = 0.5+((i*31.1)%1)*1.5;
+      const pulse = 0.5+0.5*Math.sin(t*0.003+i);
+      ctx.beginPath(); ctx.arc(sx,sy,sr,0,Math.PI*2);
+      ctx.fillStyle=`rgba(255,255,255,${sa*pulse})`; ctx.fill();
+    }
+  }
+
+  /* ── start on scroll into view ── */
+  const section = document.getElementById('hwAiSection');
+  if(!section){ requestAnimationFrame(loop); return; }
+  const obs = new IntersectionObserver(entries=>{
+    if(entries[0].isIntersecting){ obs.disconnect(); requestAnimationFrame(loop); }
+  },{threshold:0.2});
+  obs.observe(section);
+})();
+</script>

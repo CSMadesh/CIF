@@ -1,0 +1,22 @@
+<!-- home/js/robot_dismantle.html -->
+<script>
+RX.tickDismantle = function(dt){
+  const o = RX.dismantleOffsets;
+  Object.keys(o).forEach(k=>{
+    o[k].x += o[k].vx * dt * 0.06;
+    o[k].y += o[k].vy * dt * 0.06;
+    o[k].r += o[k].vr * dt * 0.06;
+    o[k].vy += 0.08 * dt * 0.06; /* gravity */
+  });
+  /* burst sparks from centre */
+  if(Math.random() < 0.4){
+    RX.spawnSparks(RX.CX() + (-80+Math.random()*160), RX.CY() + (-80+Math.random()*160), 4, 6);
+  }
+};
+
+RX.drawDismantle = function(progress){
+  /* progress 0..1 — parts fade out as they fly */
+  const alpha = Math.max(0, 1 - progress);
+  RX.drawRobot(alpha, RX.dismantleOffsets);
+};
+</script>

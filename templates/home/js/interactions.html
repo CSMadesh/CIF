@@ -1,0 +1,40 @@
+<!-- home/js/interactions.html -->
+<script>
+/* Mouse parallax */
+(function(){
+  document.addEventListener('mousemove',e=>{
+    const cx=window.innerWidth/2,cy=window.innerHeight/2;
+    const dx=(e.clientX-cx)/cx,dy=(e.clientY-cy)/cy;
+    const title=document.querySelector('.hw-title');
+    const badge=document.querySelector('.hw-badge');
+    const stats=document.querySelector('.hw-stats');
+    if(title) title.style.transform=`translate(${dx*8}px,${dy*6}px)`;
+    if(badge) badge.style.transform=`translate(${dx*12}px,${dy*10}px)`;
+    if(stats) stats.style.transform=`translate(${dx*5}px,${dy*4}px)`;
+  });
+})();
+
+/* Typewriter */
+(function(){
+  const text="IXOVA combines education, freelancing, and internships into one powerful AI ecosystem — built for students ready to become professionals.";
+  const el=document.getElementById('hwDesc');
+  const cursor=document.querySelector('.hw-cursor');
+  if(!el) return;
+  let i=0;
+  function type(){
+    if(i<text.length){el.textContent+=text[i++];setTimeout(type,i<6?100:26);}
+    else if(cursor){cursor.style.display='none';}
+  }
+  setTimeout(type,900);
+})();
+
+/* Counter */
+(function(){
+  function animateCount(el){
+    const target=parseInt(el.dataset.target);let cur=0;
+    const step=Math.ceil(target/60);
+    const t=setInterval(()=>{cur=Math.min(cur+step,target);el.textContent=cur;if(cur>=target)clearInterval(t);},28);
+  }
+  setTimeout(()=>{document.querySelectorAll('.hw-stat-num').forEach(animateCount);},2200);
+})();
+</script>

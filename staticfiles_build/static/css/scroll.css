@@ -1,48 +1,34 @@
-/* ═══════════════════════════════════════════
-   IXOVA — SCROLL ANIMATIONS
-   ═══════════════════════════════════════════ */
+/* IXOVA — SCROLL ANIMATIONS */
 
 .reveal {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.5s cubic-bezier(0.4,0,0.2,1),
-              transform 0.5s cubic-bezier(0.4,0,0.2,1);
+  opacity:0; transform:translateY(24px);
+  transition:opacity 0.55s var(--ease), transform 0.55s var(--ease);
 }
-.reveal.reveal-left  { transform: translateX(-40px); }
-.reveal.reveal-right { transform: translateX(40px); }
-.reveal.reveal-scale { transform: scale(0.9); }
+.reveal.reveal-left  { transform:translateX(-32px); }
+.reveal.reveal-right { transform:translateX(32px); }
+.reveal.reveal-scale { transform:scale(0.92); }
+.reveal.visible { opacity:1; transform:translateY(0) translateX(0) scale(1); }
 
-.reveal.visible {
-  opacity: 1;
-  transform: translateY(0) translateX(0) scale(1);
-}
-
-.reveal-d1 { transition-delay: 0.04s; }
-.reveal-d2 { transition-delay: 0.08s; }
-.reveal-d3 { transition-delay: 0.12s; }
-.reveal-d4 { transition-delay: 0.16s; }
-.reveal-d5 { transition-delay: 0.20s; }
-.reveal-d6 { transition-delay: 0.24s; }
-
-html { scroll-behavior: smooth; }
+.reveal-d1 { transition-delay:0.05s; }
+.reveal-d2 { transition-delay:0.10s; }
+.reveal-d3 { transition-delay:0.15s; }
+.reveal-d4 { transition-delay:0.20s; }
+.reveal-d5 { transition-delay:0.25s; }
+.reveal-d6 { transition-delay:0.30s; }
 
 #pageTransition {
-  position: fixed;
-  inset: 0;
-  background: linear-gradient(135deg, #0d1b2a, #1a2d42);
-  z-index: 99999;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.15s ease;
+  position:fixed; inset:0;
+  background:#000;
+  z-index:99999; pointer-events:none;
+  opacity:0; transition:opacity 0.15s ease;
 }
 
 #scrollProgress {
-  position: fixed;
-  top: 0; left: 0;
-  height: 3px;
-  width: 0%;
-  background: linear-gradient(90deg, #a07830, #e8c97a, #c9a84c);
-  z-index: 99998;
-  box-shadow: 0 0 6px rgba(201,168,76,0.5);
-  will-change: width;
+  position:fixed; top:0; left:0;
+  height:1px; width:0%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.7),transparent);
+  z-index:99998;
+  box-shadow:0 0 10px rgba(255,255,255,0.3);
+  will-change:width;
+  transition:width 0.1s linear;
 }

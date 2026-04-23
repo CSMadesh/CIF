@@ -1,0 +1,36 @@
+<!-- home/js/tilt.html -->
+<script>
+function applyTilt(selector,rx,ry,lift){
+  document.querySelectorAll(selector).forEach(el=>{
+    el.addEventListener('mousemove',e=>{
+      const r=el.getBoundingClientRect();
+      const dx=(e.clientX-r.left-r.width/2)/(r.width/2);
+      const dy=(e.clientY-r.top-r.height/2)/(r.height/2);
+      el.style.transform=`translateY(-${lift}px) rotateX(${-dy*ry}deg) rotateY(${dx*rx}deg) scale(1.02)`;
+      if(selector==='.hw-ai-card'){
+        el.style.boxShadow=`${-dx*12}px ${-dy*12}px 40px rgba(0,0,0,0.6),0 0 30px rgba(255,255,255,0.04),inset 0 1px 0 rgba(255,255,255,0.15)`;
+      }
+    });
+    el.addEventListener('mouseleave',()=>{
+      el.style.transform='';
+      el.style.boxShadow='';
+    });
+  });
+}
+
+applyTilt('.hw-feat',6,6,6);
+applyTilt('.hw-ai-card',8,8,8);
+
+/* Stats tilt */
+(function(){
+  const stats=document.querySelector('.hw-stats');
+  if(!stats) return;
+  stats.addEventListener('mousemove',e=>{
+    const r=stats.getBoundingClientRect();
+    const dx=(e.clientX-r.left-r.width/2)/(r.width/2);
+    const dy=(e.clientY-r.top-r.height/2)/(r.height/2);
+    stats.style.transform=`rotateX(${-dy*5}deg) rotateY(${dx*5}deg) translateY(-4px)`;
+  });
+  stats.addEventListener('mouseleave',()=>{stats.style.transform='';});
+})();
+</script>
