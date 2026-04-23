@@ -31,4 +31,8 @@ urlpatterns = [
     # Chatbot
     path('chat/', views.chat_page, name='chat'),
     path('chat/api/', views.chat_api, name='chat_api'),
+    # Password Reset
+    path('forgot-password/', views.forgot_password, name='forgot_password'),
+    path('verify-otp/', views.verify_otp, name='verify_otp'),
+    path('reset-password/', views.reset_password, name='reset_password'),
 ]

@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+{% block title %}Verify OTP – IXOVA{% endblock %}
+{% block content %}
+
+<div class="auth3d-page">
+  <canvas id="glitterCanvas" style="position:fixed;inset:0;pointer-events:none;z-index:1;width:100%;height:100%;"></canvas>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="particles">
+    {% for i in "123456789012345" %}
+    <div class="particle"></div>
+    {% endfor %}
+  </div>
+
+  <div class="auth3d-scene">
+    <div class="auth3d-card">
+      <div class="auth3d-topbar"></div>
+      <div class="auth3d-logo">IXOVA</div>
+      <p class="auth3d-subtitle">Enter the 6-digit OTP sent to<br><strong style="color:#a07830;">{{ email }}</strong></p>
+      <div class="auth3d-ornament">
+        <span></span><span class="diamond">◆</span><span></span>
+      </div>
+
+      {% if messages %}
+        {% for msg in messages %}
+          <div class="auth3d-alert">{{ msg }}</div>
+        {% endfor %}
+      {% endif %}
+
+      <form method="post" class="auth3d-form" id="otpForm">
+        {% csrf_token %}
+        <input type="hidden" name="otp" id="otpHidden">
+
+        <div class="otp-boxes">
+          <input class="otp-box" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" autocomplete="off">
+          <input class="otp-box" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" autocomplete="off">
+          <input class="otp-box" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" autocomplete="off">
+          <input class="otp-box" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" autocomplete="off">
+          <input class="otp-box" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" autocomplete="off">
+          <input class="otp-box" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" autocomplete="off">
+        </div>
+
+        <div class="otp-timer" id="otpTimer">OTP expires in <span id="countdown">10:00</span></div>
+
+        <button type="submit" class="auth3d-btn" id="verifyBtn" disabled>
+          <span class="auth3d-btn-text">Verify OTP</span>
+          <span class="auth3d-btn-shine"></span>
+        </button>
+      </form>
+
+      <div class="auth3d-footer">
+        Didn't receive it? <a href="{% url 'forgot_password' %}">Resend OTP</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.auth3d-page{min-height:100vh;background:linear-gradient(160deg,#0d1b2a 0%,#1a2d42 40%,#243b55 70%,#1a3a2a 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;perspective:1200px;}
+.orb{position:absolute;border-radius:50%;filter:blur(60px);pointer-events:none;animation:orbFloat 8s ease-in-out infinite;}
+.orb-1{width:400px;height:400px;background:radial-gradient(circle,rgba(201,168,76,0.15) 0%,transparent 70%);top:-100px;left:-100px;animation-duration:9s;}
+.orb-2{width:350px;height:350px;background:radial-gradient(circle,rgba(26,107,74,0.12) 0%,transparent 70%);bottom:-80px;right:-80px;animation-duration:11s;animation-delay:-3s;}
+.orb-3{width:250px;height:250px;background:radial-gradient(circle,rgba(123,45,66,0.1) 0%,transparent 70%);top:50%;left:60%;animation-duration:7s;animation-delay:-5s;}
+@keyframes orbFloat{0%,100%{transform:translateY(0) scale(1);}50%{transform:translateY(-30px) scale(1.05);}}
+.particles{position:absolute;inset:0;pointer-events:none;}
+.particle{position:absolute;width:3px;height:3px;background:rgba(201,168,76,0.5);border-radius:50%;animation:particleDrift linear infinite;}
+.particle:nth-child(1){left:5%;top:20%;animation-duration:12s;animation-delay:0s;width:2px;height:2px;}.particle:nth-child(2){left:15%;top:80%;animation-duration:15s;animation-delay:-2s;}.particle:nth-child(3){left:25%;top:40%;animation-duration:10s;animation-delay:-4s;width:4px;height:4px;}.particle:nth-child(4){left:35%;top:10%;animation-duration:13s;animation-delay:-1s;}.particle:nth-child(5){left:45%;top:60%;animation-duration:11s;animation-delay:-6s;width:2px;height:2px;}.particle:nth-child(6){left:55%;top:30%;animation-duration:14s;animation-delay:-3s;}.particle:nth-child(7){left:65%;top:70%;animation-duration:9s;animation-delay:-5s;width:4px;height:4px;}.particle:nth-child(8){left:75%;top:15%;animation-duration:16s;animation-delay:-7s;}.particle:nth-child(9){left:85%;top:50%;animation-duration:12s;animation-delay:-2s;width:2px;height:2px;}.particle:nth-child(10){left:90%;top:85%;animation-duration:10s;animation-delay:-4s;}.particle:nth-child(11){left:10%;top:55%;animation-duration:13s;animation-delay:-8s;}.particle:nth-child(12){left:50%;top:90%;animation-duration:11s;animation-delay:-1s;}.particle:nth-child(13){left:70%;top:5%;animation-duration:15s;animation-delay:-9s;width:2px;height:2px;}.particle:nth-child(14){left:30%;top:75%;animation-duration:8s;animation-delay:-3s;}.particle:nth-child(15){left:80%;top:35%;animation-duration:14s;animation-delay:-6s;width:4px;height:4px;}
+@keyframes particleDrift{0%{transform:translateY(0) rotate(0deg);opacity:0;}10%{opacity:1;}90%{opacity:1;}100%{transform:translateY(-100vh) rotate(360deg);opacity:0;}}
+.auth3d-scene{position:relative;z-index:10;transform-style:preserve-3d;animation:cardEntrance 0.8s cubic-bezier(0.34,1.56,0.64,1) forwards;}
+@keyframes cardEntrance{from{opacity:0;transform:rotateX(25deg) rotateY(-15deg) translateY(40px) scale(0.9);}to{opacity:1;transform:rotateX(0deg) rotateY(0deg) translateY(0) scale(1);}}
+.auth3d-card{background:rgba(250,246,238,0.97);border-radius:20px;padding:44px 40px;width:100%;max-width:420px;border:1px solid rgba(201,168,76,0.5);box-shadow:0 30px 80px rgba(0,0,0,0.5),0 0 0 1px rgba(201,168,76,0.1),inset 0 1px 0 rgba(255,255,255,0.8);position:relative;overflow:hidden;transform-style:preserve-3d;transition:transform 0.3s ease,box-shadow 0.3s ease;}
+.auth3d-card:hover{transform:rotateX(2deg) rotateY(-2deg) translateY(-4px);box-shadow:0 40px 100px rgba(0,0,0,0.6),0 0 40px rgba(201,168,76,0.15),inset 0 1px 0 rgba(255,255,255,0.8);}
+.auth3d-topbar{position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#a07830,#e8c97a,#c9a84c,#e8c97a,#a07830);background-size:200% 100%;animation:goldSlide 3s linear infinite;}
+@keyframes goldSlide{0%{background-position:0% 0%;}100%{background-position:200% 0%;}}
+.auth3d-logo{font-family:'Playfair Display',serif;font-size:32px;font-weight:800;text-align:center;margin-bottom:6px;letter-spacing:4px;background:linear-gradient(135deg,#0d1b2a,#1a2d42,#243b55);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.auth3d-subtitle{text-align:center;color:#7a6548;font-size:13px;margin-bottom:16px;letter-spacing:0.3px;line-height:1.6;}
+.auth3d-ornament{display:flex;align-items:center;gap:10px;margin-bottom:24px;}
+.auth3d-ornament span:not(.diamond){flex:1;height:1px;background:linear-gradient(90deg,transparent,#c9a84c,transparent);}
+.auth3d-ornament .diamond{color:#c9a84c;font-size:10px;}
+.auth3d-alert{background:rgba(138,26,26,0.08);border-left:3px solid #8a1a1a;color:#8a1a1a;padding:10px 14px;border-radius:6px;font-size:13px;font-weight:500;margin-bottom:18px;}
+
+/* OTP boxes */
+.otp-boxes{display:flex;gap:10px;justify-content:center;margin-bottom:16px;}
+.otp-box{width:48px;height:56px;text-align:center;font-size:22px;font-weight:700;font-family:'Playfair Display',serif;color:#1a1208;background:#fff;border:1.5px solid rgba(201,168,76,0.4);border-radius:10px;outline:none;transition:all 0.2s ease;box-shadow:0 2px 8px rgba(13,27,42,0.06);caret-color:transparent;-webkit-text-fill-color:#1a1208;}
+.otp-box:focus{border-color:#c9a84c;box-shadow:0 0 0 3px rgba(201,168,76,0.2),0 4px 12px rgba(13,27,42,0.1);transform:translateY(-2px) scale(1.05);}
+.otp-box.filled{border-color:#c9a84c;background:rgba(201,168,76,0.06);}
+
+.otp-timer{text-align:center;font-size:12px;color:#7a6548;margin-bottom:20px;}
+#countdown{font-weight:700;color:#a07830;}
+
+.auth3d-btn{width:100%;padding:14px;background:linear-gradient(135deg,#0d1b2a,#1a2d42,#243b55);color:#e8c97a;border:1px solid rgba(201,168,76,0.4);border-radius:10px;font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;position:relative;overflow:hidden;transition:all 0.3s ease;box-shadow:0 6px 24px rgba(13,27,42,0.4);margin-top:4px;}
+.auth3d-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none !important;}
+.auth3d-btn:not(:disabled):hover{transform:translateY(-3px) scale(1.01);box-shadow:0 12px 36px rgba(13,27,42,0.5),0 0 20px rgba(201,168,76,0.2);border-color:#c9a84c;}
+.auth3d-btn:active:not(:disabled){transform:translateY(-1px);}
+.auth3d-btn-shine{position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(201,168,76,0.2),transparent);transition:left 0.5s ease;}
+.auth3d-btn:hover .auth3d-btn-shine{left:100%;}
+.auth3d-footer{text-align:center;margin-top:24px;font-size:13px;color:#7a6548;}
+.auth3d-footer a{color:#a07830;font-weight:600;}
+.auth3d-footer a:hover{color:#c9a84c;text-decoration:underline;}
+@media(max-width:400px){.otp-box{width:40px;height:48px;font-size:18px;}.otp-boxes{gap:6px;}}
+</style>
+
+<script>
+/* OTP box auto-advance */
+const boxes = document.querySelectorAll('.otp-box');
+const hidden = document.getElementById('otpHidden');
+const btn = document.getElementById('verifyBtn');
+
+function updateHidden() {
+  const val = Array.from(boxes).map(b => b.value).join('');
+  hidden.value = val;
+  btn.disabled = val.length < 6;
+}
+
+boxes.forEach((box, i) => {
+  box.addEventListener('input', () => {
+    box.value = box.value.replace(/\D/g, '').slice(-1);
+    box.classList.toggle('filled', box.value !== '');
+    updateHidden();
+    if (box.value && i < boxes.length - 1) boxes[i + 1].focus();
+  });
+  box.addEventListener('keydown', (e) => {
+    if (e.key === 'Backspace' && !box.value && i > 0) {
+      boxes[i - 1].value = '';
+      boxes[i - 1].classList.remove('filled');
+      boxes[i - 1].focus();
+      updateHidden();
+    }
+  });
+  box.addEventListener('paste', (e) => {
+    e.preventDefault();
+    const text = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '').slice(0, 6);
+    text.split('').forEach((ch, j) => {
+      if (boxes[j]) { boxes[j].value = ch; boxes[j].classList.add('filled'); }
+    });
+    updateHidden();
+    const next = boxes[Math.min(text.length, 5)];
+    if (next) next.focus();
+  });
+});
+
+boxes[0].focus();
+
+/* Countdown timer — 10 minutes */
+let secs = 600;
+const cd = document.getElementById('countdown');
+const timer = setInterval(() => {
+  secs--;
+  const m = Math.floor(secs / 60), s = secs % 60;
+  cd.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+  if (secs <= 60) cd.style.color = '#8a1a1a';
+  if (secs <= 0) {
+    clearInterval(timer);
+    cd.textContent = 'Expired';
+    btn.disabled = true;
+    document.querySelector('.otp-timer').textContent = 'OTP has expired. ';
+    const link = document.createElement('a');
+    link.href = "{% url 'forgot_password' %}";
+    link.textContent = 'Request a new one';
+    link.style.cssText = 'color:#a07830;font-weight:600;';
+    document.querySelector('.otp-timer').appendChild(link);
+  }
+}, 1000);
+
+/* 3D tilt */
+const card=document.querySelector('.auth3d-card');const scene=document.querySelector('.auth3d-scene');if(scene&&card){scene.addEventListener('mousemove',(e)=>{const rect=card.getBoundingClientRect();const cx=rect.left+rect.width/2;const cy=rect.top+rect.height/2;const dx=(e.clientX-cx)/(rect.width/2);const dy=(e.clientY-cy)/(rect.height/2);card.style.transform=`rotateY(${dx*8}deg) rotateX(${-dy*8}deg) translateY(-4px)`;});scene.addEventListener('mouseleave',()=>{card.style.transform='rotateY(0deg) rotateX(0deg) translateY(0)';});}
+
+/* Glitter */
+(function(){const canvas=document.getElementById('glitterCanvas');const ctx=canvas.getContext('2d');let W,H,particles=[];function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}resize();window.addEventListener('resize',resize);const COLORS=['rgba(201,168,76,','rgba(232,201,122,','rgba(255,215,0,','rgba(245,240,232,','rgba(26,107,74,','rgba(123,45,66,'];function P(){this.reset();}P.prototype.reset=function(){this.x=Math.random()*W;this.y=Math.random()*H;this.z=Math.random()*800+200;this.vx=(Math.random()-0.5)*0.4;this.vy=(Math.random()-0.5)*0.4-0.2;this.vz=(Math.random()-0.5)*0.5;this.size=Math.random()*3+1;this.color=COLORS[Math.floor(Math.random()*COLORS.length)];this.alpha=Math.random()*0.8+0.2;this.spin=Math.random()*Math.PI*2;this.spinV=(Math.random()-0.5)*0.08;this.shape=Math.random()>0.5?'diamond':'circle';this.twinkle=Math.random()*Math.PI*2;this.twinkleV=Math.random()*0.05+0.02;};P.prototype.update=function(){this.x+=this.vx;this.y+=this.vy;this.z+=this.vz;this.spin+=this.spinV;this.twinkle+=this.twinkleV;if(this.y<-20||this.x<-20||this.x>W+20||this.z<50||this.z>1200)this.reset();};P.prototype.draw=function(){const scale=600/this.z;const px=(this.x-W/2)*scale+W/2;const py=(this.y-H/2)*scale+H/2;const ps=this.size*scale;const alpha=this.alpha*(0.5+0.5*Math.sin(this.twinkle));ctx.save();ctx.translate(px,py);ctx.rotate(this.spin);ctx.globalAlpha=alpha;if(this.shape==='diamond'){ctx.beginPath();ctx.moveTo(0,-ps*1.5);ctx.lineTo(ps,0);ctx.lineTo(0,ps*1.5);ctx.lineTo(-ps,0);ctx.closePath();ctx.fillStyle=this.color+alpha+')';ctx.fill();ctx.fillStyle='rgba(255,255,255,'+alpha*0.6+')';ctx.beginPath();ctx.moveTo(0,-ps*1.5);ctx.lineTo(ps*0.3,-ps*0.3);ctx.lineTo(0,0);ctx.lineTo(-ps*0.3,-ps*0.3);ctx.closePath();ctx.fill();}else{ctx.beginPath();ctx.arc(0,0,ps,0,Math.PI*2);ctx.fillStyle=this.color+alpha+')';ctx.fill();ctx.strokeStyle='rgba(255,255,255,'+alpha*0.5+')';ctx.lineWidth=0.5;ctx.beginPath();ctx.moveTo(-ps*2,0);ctx.lineTo(ps*2,0);ctx.moveTo(0,-ps*2);ctx.lineTo(0,ps*2);ctx.stroke();}ctx.restore();};for(let i=0;i<120;i++)particles.push(new P());function loop(){ctx.clearRect(0,0,W,H);particles.forEach(p=>{p.update();p.draw();});requestAnimationFrame(loop);}loop();})();
+</script>
+
+{% endblock %}

@@ -8,11 +8,14 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.cache import never_cache, cache_page
 from django.core.cache import cache
+from django.core.mail import send_mail
+from django.conf import settings as django_settings
 from functools import wraps
 import json
 import random
+import string
 from datetime import date
-from .models import Profile, Course, Opportunity, Application, SavedOpportunity, SubAdmin, ChatMessage
+from .models import Profile, Course, Opportunity, Application, SavedOpportunity, SubAdmin, ChatMessage, PasswordResetOTP
 
 
 # ── Quotes (module-level so not rebuilt every request) ──────────────────────
@@ -563,3 +566,119 @@ def chat_api(request):
     reply = _bot_reply(request.user, user_msg)
     ChatMessage.objects.create(user=request.user, message=user_msg, reply=reply)
     return JsonResponse({'reply': reply})
+
+
+# ── Password Reset via OTP ───────────────────────────────────────────────────
+
+@never_cache
+def forgot_password(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+        if not email:
+            messages.error(request, 'Please enter your email address.')
+            return render(request, 'forgot_password.html')
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            # Don't reveal whether email exists
+            messages.success(request, 'If that email is registered, an OTP has been sent.')
+            return render(request, 'forgot_password.html')
+
+        # Invalidate old OTPs
+        PasswordResetOTP.objects.filter(user=user, is_used=False).update(is_used=True)
+
+        otp = ''.join(random.choices(string.digits, k=6))
+        PasswordResetOTP.objects.create(user=user, otp=otp)
+
+        try:
+            send_mail(
+                subject='IXOVA — Your Password Reset OTP',
+                message=(
+                    f'Hello {user.first_name or user.username},\n\n'
+                    f'Your OTP to reset your IXOVA password is:\n\n'
+                    f'  {otp}\n\n'
+                    f'This code expires in 10 minutes. Do not share it with anyone.\n\n'
+                    f'If you did not request this, ignore this email.\n\n'
+                    f'— The IXOVA Team'
+                ),
+                from_email=django_settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[email],
+                fail_silently=False,
+            )
+        except Exception:
+            messages.error(request, 'Failed to send email. Please try again later.')
+            return render(request, 'forgot_password.html')
+
+        request.session['otp_email'] = email
+        messages.success(request, f'OTP sent to {email}. Check your inbox.')
+        return redirect('verify_otp')
+
+    return render(request, 'forgot_password.html')
+
+
+@never_cache
+def verify_otp(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+    email = request.session.get('otp_email')
+    if not email:
+        return redirect('forgot_password')
+
+    if request.method == 'POST':
+        entered = request.POST.get('otp', '').strip()
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return redirect('forgot_password')
+
+        otp_obj = PasswordResetOTP.objects.filter(
+            user=user, otp=entered, is_used=False
+        ).order_by('-created_at').first()
+
+        if not otp_obj or not otp_obj.is_valid():
+            messages.error(request, 'Invalid or expired OTP. Please try again.')
+            return render(request, 'verify_otp.html', {'email': email})
+
+        otp_obj.is_used = True
+        otp_obj.save(update_fields=['is_used'])
+        request.session['otp_verified_email'] = email
+        request.session.pop('otp_email', None)
+        return redirect('reset_password')
+
+    return render(request, 'verify_otp.html', {'email': email})
+
+
+@never_cache
+def reset_password(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+    email = request.session.get('otp_verified_email')
+    if not email:
+        return redirect('forgot_password')
+
+    if request.method == 'POST':
+        password1 = request.POST.get('password1', '')
+        password2 = request.POST.get('password2', '')
+        if not password1 or not password2:
+            messages.error(request, 'Both fields are required.')
+            return render(request, 'reset_password.html')
+        if password1 != password2:
+            messages.error(request, 'Passwords do not match.')
+            return render(request, 'reset_password.html')
+        if len(password1) < 8:
+            messages.error(request, 'Password must be at least 8 characters.')
+            return render(request, 'reset_password.html')
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return redirect('forgot_password')
+
+        user.set_password(password1)
+        user.save(update_fields=['password'])
+        request.session.pop('otp_verified_email', None)
+        messages.success(request, 'Password reset successfully! You can now sign in.')
+        return redirect('login')
+
+    return render(request, 'reset_password.html')
