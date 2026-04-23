@@ -9,6 +9,11 @@
   ],
   "routes": [
     {
+      "src": "/static/(.*)",
+      "headers": { "cache-control": "public, max-age=31536000, immutable" },
+      "dest": "ixova/wsgi.py"
+    },
+    {
       "src": "/(.*)",
       "dest": "ixova/wsgi.py"
     }
