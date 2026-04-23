@@ -1,12 +1,26 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
-from cloudinary.models import CloudinaryField
+import os
+
+# Use CloudinaryField only when real credentials are configured
+_key = os.environ.get('CLOUDINARY_API_KEY', '')
+_use_cloudinary = bool(_key and _key != 'your_api_key')
+
+if _use_cloudinary:
+    from cloudinary.models import CloudinaryField
+    AvatarField    = lambda: CloudinaryField('avatar',    folder='avatars',           blank=True, null=True)
+    ThumbnailField = lambda: CloudinaryField('thumbnail', folder='course_thumbnails', blank=True, null=True)
+    VideoField     = lambda: CloudinaryField('video',     folder='course_videos',     resource_type='video', blank=True, null=True)
+else:
+    AvatarField    = lambda: models.ImageField(upload_to='avatars/',           blank=True, null=True)
+    ThumbnailField = lambda: models.ImageField(upload_to='course_thumbnails/', blank=True, null=True)
+    VideoField     = lambda: models.FileField(upload_to='course_videos/',      blank=True, null=True)
 
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    avatar = CloudinaryField('avatar', folder='avatars', blank=True, null=True)
+    avatar = AvatarField()
     bio = models.TextField(blank=True)
     skills = models.CharField(max_length=500, blank=True)
     ai_score = models.IntegerField(default=0)
@@ -26,8 +40,8 @@ class Course(models.Model):
     description = models.TextField()
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
     duration = models.CharField(max_length=50)
-    thumbnail = CloudinaryField('thumbnail', folder='course_thumbnails', blank=True, null=True)
-    video = CloudinaryField('video', folder='course_videos', resource_type='video', blank=True, null=True)
+    thumbnail = ThumbnailField()
+    video = VideoField()
     created_at = models.DateTimeField(auto_now_add=True)
     is_premium = models.BooleanField(default=False)
 

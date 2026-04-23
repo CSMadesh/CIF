@@ -186,8 +186,11 @@ def profile_view(request):
         profile.skills = request.POST.get('skills', profile.skills)
         update_fields  = ['bio', 'skills']
         if 'avatar' in request.FILES:
-            profile.avatar = request.FILES['avatar']
-            update_fields.append('avatar')
+            try:
+                profile.avatar = request.FILES['avatar']
+                update_fields.append('avatar')
+            except Exception:
+                messages.warning(request, 'Profile updated but avatar upload failed. Please try again.')
         profile.save(update_fields=update_fields)
         messages.success(request, 'Profile updated successfully.')
         return redirect('profile')

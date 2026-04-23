@@ -2,7 +2,6 @@
 (function () {
   'use strict';
 
-  // Don't mount on the full chat page
   if (window.location.pathname === '/chat/') return;
 
   const SUGGESTIONS = [
@@ -39,7 +38,8 @@
             <div style="font-size:11px;color:rgba(255,255,255,0.75)">● Online</div>
           </div>
         </div>
-        <div style="display:flex;gap:8px;align-items:center">
+        <div style="display:flex;gap:8px;align-items:center" id="chatHeaderActions">
+          <button id="voiceToggleBtn" title="Mute voice" style="background:none;border:none;cursor:pointer;font-size:17px;color:rgba(255,255,255,0.9);line-height:1;padding:0 2px;">🔊</button>
           <a href="/chat/" class="chat-widget-expand" title="Open full chat">⤢</a>
           <button class="chat-widget-close" id="chatClose">✕</button>
         </div>
@@ -72,7 +72,7 @@
   `;
   document.body.appendChild(widget);
 
-  // ── State ──────────────────────────────────────────────────
+  // ── Refs ───────────────────────────────────────────────────
   const fab        = document.getElementById('chatFab');
   const chatWidget = document.getElementById('chatWidget');
   const closeBtn   = document.getElementById('chatClose');
@@ -80,20 +80,95 @@
   const sendBtn    = document.getElementById('widgetSendBtn');
   const msgBox     = document.getElementById('widgetMessages');
   const badge      = document.getElementById('chatBadge');
+  const voiceBtn   = document.getElementById('voiceToggleBtn');
   let isOpen       = false;
   let unread       = 0;
 
+  // ── Voice / TTS ────────────────────────────────────────────
+  const synth      = window.speechSynthesis;
+  let voiceEnabled = true;
+
+  function pickVoice() {
+    var all = synth ? synth.getVoices() : [];
+    return (
+      all.find(v => v.lang.startsWith('en') && /google us english/i.test(v.name)) ||
+      all.find(v => v.lang.startsWith('en') && /google/i.test(v.name)) ||
+      all.find(v => v.lang === 'en-US') ||
+      all.find(v => v.lang.startsWith('en')) ||
+      all[0] ||
+      null
+    );
+  }
+
+  function speak(text) {
+    if (!synth || !voiceEnabled) return;
+
+    // Clean text for speech
+    var clean = text
+      .replace(/\*\*(.+?)\*\*/g, '$1')
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/[#*_`>•]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    if (!clean) return;
+
+    synth.cancel();
+
+    function fire() {
+      var utter   = new SpeechSynthesisUtterance(clean);
+      utter.lang  = 'en-US';
+      utter.rate  = 1.0;
+      utter.pitch = 1.1;
+      utter.volume = 1.0;
+      var v = pickVoice();
+      if (v) utter.voice = v;
+      synth.speak(utter);
+    }
+
+    // If voices already loaded, speak immediately
+    if (synth.getVoices().length > 0) {
+      fire();
+    } else {
+      // Wait for voices to load then speak
+      synth.addEventListener('voiceschanged', function handler() {
+        synth.removeEventListener('voiceschanged', handler);
+        fire();
+      });
+    }
+  }
+
+  // Voice toggle button
+  voiceBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    voiceEnabled = !voiceEnabled;
+    voiceBtn.textContent = voiceEnabled ? '🔊' : '🔇';
+    voiceBtn.title = voiceEnabled ? 'Mute voice' : 'Unmute voice';
+    if (!voiceEnabled && synth) synth.cancel();
+  });
+
+  // ── Widget toggle ──────────────────────────────────────────
   function toggleWidget() {
     isOpen = !isOpen;
     chatWidget.style.display = isOpen ? 'flex' : 'none';
-    document.querySelector('.chat-fab .open-icon').style.display  = isOpen ? 'none'  : 'inline';
-    document.querySelector('.chat-fab .close-icon').style.display = isOpen ? 'inline': 'none';
-    if (isOpen) { unread = 0; badge.style.display = 'none'; scrollBottom(); input.focus(); }
+    document.querySelector('.chat-fab .open-icon').style.display  = isOpen ? 'none'   : 'inline';
+    document.querySelector('.chat-fab .close-icon').style.display = isOpen ? 'inline' : 'none';
+    if (isOpen) {
+      unread = 0;
+      badge.style.display = 'none';
+      scrollBottom();
+      input.focus();
+      // Speak greeting on open
+      speak("Hey! I'm your IXOVA Assistant. How can I help you today?");
+    } else {
+      if (synth) synth.cancel();
+    }
   }
 
   fab.addEventListener('click', toggleWidget);
   closeBtn.addEventListener('click', toggleWidget);
 
+  // ── Messages ───────────────────────────────────────────────
   function scrollBottom() { msgBox.scrollTop = msgBox.scrollHeight; }
 
   function appendMsg(text, role) {
@@ -124,6 +199,7 @@
   }
   function removeTyping() { const el = document.getElementById('wTyping'); if (el) el.remove(); }
 
+  // ── Send ───────────────────────────────────────────────────
   async function sendMessage() {
     const text = input.value.trim();
     if (!text) return;
@@ -140,7 +216,9 @@
       });
       const data = await res.json();
       removeTyping();
-      appendMsg(data.reply || 'Sorry, something went wrong.', 'bot');
+      const reply = data.reply || 'Sorry, something went wrong.';
+      appendMsg(reply, 'bot');
+      speak(reply);
     } catch {
       removeTyping();
       appendMsg('Connection error. Please try again.', 'bot');
@@ -159,8 +237,9 @@
     });
   });
 
-  // Show badge after 3s to invite interaction
+  // Show badge after 3s
   setTimeout(() => {
     if (!isOpen) { unread = 1; badge.textContent = '1'; badge.style.display = 'flex'; }
   }, 3000);
+
 })();
