@@ -570,6 +570,10 @@ def chat_api(request):
 
 # ── Password Reset via OTP ───────────────────────────────────────────────────
 
+import logging
+_log = logging.getLogger(__name__)
+
+
 @never_cache
 def forgot_password(request):
     if request.user.is_authenticated:
@@ -579,17 +583,14 @@ def forgot_password(request):
         if not email:
             messages.error(request, 'Please enter your email address.')
             return render(request, 'forgot_password.html')
-        try:
-            user = User.objects.get(email=email)
-        except User.DoesNotExist:
-            # Don't reveal whether email exists — show same success message
+
+        user = User.objects.filter(email__iexact=email).first()
+        if not user:
             messages.success(request, 'If that email is registered, an OTP has been sent.')
             return render(request, 'forgot_password.html')
 
-        # Generate OTP
         otp = ''.join(random.choices(string.digits, k=6))
 
-        # Try sending email BEFORE saving OTP to DB
         try:
             send_mail(
                 subject='IXOVA — Your Password Reset OTP',
@@ -602,22 +603,18 @@ def forgot_password(request):
                     f'— The IXOVA Team'
                 ),
                 from_email=django_settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[email],
+                recipient_list=[user.email],
                 fail_silently=False,
             )
         except Exception as e:
-            # Log the error but don't expose it to the user
-            import logging
-            logging.getLogger(__name__).error(f'OTP email failed for {email}: {e}')
-            messages.error(request, 'Could not send email. Please check your email address or try again later.')
+            _log.error(f'OTP email failed for {email}: {e}')
+            messages.error(request, 'Could not send email. Please try again later.')
             return render(request, 'forgot_password.html')
 
-        # Email sent — now save OTP and invalidate old ones
         PasswordResetOTP.objects.filter(user=user, is_used=False).update(is_used=True)
         PasswordResetOTP.objects.create(user=user, otp=otp)
-
-        request.session['otp_email'] = email
-        messages.success(request, f'OTP sent to {email}. Check your inbox (and spam folder).')
+        request.session['otp_email'] = user.email
+        messages.success(request, f'OTP sent to {user.email}. Check your inbox and spam folder.')
         return redirect('verify_otp')
 
     return render(request, 'forgot_password.html')
@@ -633,9 +630,8 @@ def verify_otp(request):
 
     if request.method == 'POST':
         entered = request.POST.get('otp', '').strip()
-        try:
-            user = User.objects.get(email=email)
-        except User.DoesNotExist:
+        user = User.objects.filter(email__iexact=email).first()
+        if not user:
             return redirect('forgot_password')
 
         otp_obj = PasswordResetOTP.objects.filter(
@@ -675,9 +671,9 @@ def reset_password(request):
         if len(password1) < 8:
             messages.error(request, 'Password must be at least 8 characters.')
             return render(request, 'reset_password.html')
-        try:
-            user = User.objects.get(email=email)
-        except User.DoesNotExist:
+
+        user = User.objects.filter(email__iexact=email).first()
+        if not user:
             return redirect('forgot_password')
 
         user.set_password(password1)
