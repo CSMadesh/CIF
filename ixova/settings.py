@@ -93,24 +93,19 @@ LOGOUT_REDIRECT_URL = '/'
 # ── Email (SMTP) ──
 _email_user = os.environ.get('EMAIL_HOST_USER', '')
 _email_pass = os.environ.get('EMAIL_HOST_PASSWORD', '')
-_email_configured = bool(
-    _email_user and _email_pass
-    and _email_user not in ('', 'your_gmail@gmail.com')
-    and _email_pass not in ('', 'your_app_password')
-)
+_email_configured = bool(_email_user and _email_pass)
+
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = _email_user
+EMAIL_HOST_PASSWORD = _email_pass
+DEFAULT_FROM_EMAIL = _email_user if _email_user else 'noreply@ixova.app'
 
 if _email_configured:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
-    EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
-    EMAIL_USE_TLS = True
-    EMAIL_HOST_USER = _email_user
-    EMAIL_HOST_PASSWORD = _email_pass
-    DEFAULT_FROM_EMAIL = _email_user
 else:
-    # Prints OTP to server console/logs — safe fallback for dev/unconfigured
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-    DEFAULT_FROM_EMAIL = 'noreply@ixova.app'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

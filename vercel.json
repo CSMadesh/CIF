@@ -23,10 +23,6 @@
     "CLOUDINARY_API_KEY": "198418245786499",
     "CLOUDINARY_API_SECRET": "OjigikzC9a7oZnfKcFSLU6hInLQ",
     "SECRET_KEY": "django-insecure-8!ymj(2%_tm1&476fbi!sr&@^u+wbk0_*g*l@)7cgl+_%2m&g$",
-    "DEBUG": "False",
-    "EMAIL_HOST": "smtp.gmail.com",
-    "EMAIL_PORT": "587",
-    "EMAIL_HOST_USER": "your_gmail@gmail.com",
-    "EMAIL_HOST_PASSWORD": "your_app_password"
+    "DEBUG": "False"
   }
 }
