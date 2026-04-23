@@ -5,6 +5,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}IXOVA{% endblock %}</title>
+  <!-- Preconnect for faster font loading -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
   <link rel="stylesheet" href="{% static 'css/base.css' %}">
   <link rel="stylesheet" href="{% static 'css/layout.css' %}">
@@ -120,7 +123,7 @@
 </script>
 {% endif %}
 
-<script src="{% static 'js/scroll.js' %}"></script>
+<script src="{% static 'js/scroll.js' %}" defer></script>
 
 </body>
 </html>
