@@ -582,16 +582,14 @@ def forgot_password(request):
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
-            # Don't reveal whether email exists
+            # Don't reveal whether email exists — show same success message
             messages.success(request, 'If that email is registered, an OTP has been sent.')
             return render(request, 'forgot_password.html')
 
-        # Invalidate old OTPs
-        PasswordResetOTP.objects.filter(user=user, is_used=False).update(is_used=True)
-
+        # Generate OTP
         otp = ''.join(random.choices(string.digits, k=6))
-        PasswordResetOTP.objects.create(user=user, otp=otp)
 
+        # Try sending email BEFORE saving OTP to DB
         try:
             send_mail(
                 subject='IXOVA — Your Password Reset OTP',
@@ -607,12 +605,19 @@ def forgot_password(request):
                 recipient_list=[email],
                 fail_silently=False,
             )
-        except Exception:
-            messages.error(request, 'Failed to send email. Please try again later.')
+        except Exception as e:
+            # Log the error but don't expose it to the user
+            import logging
+            logging.getLogger(__name__).error(f'OTP email failed for {email}: {e}')
+            messages.error(request, 'Could not send email. Please check your email address or try again later.')
             return render(request, 'forgot_password.html')
 
+        # Email sent — now save OTP and invalidate old ones
+        PasswordResetOTP.objects.filter(user=user, is_used=False).update(is_used=True)
+        PasswordResetOTP.objects.create(user=user, otp=otp)
+
         request.session['otp_email'] = email
-        messages.success(request, f'OTP sent to {email}. Check your inbox.')
+        messages.success(request, f'OTP sent to {email}. Check your inbox (and spam folder).')
         return redirect('verify_otp')
 
     return render(request, 'forgot_password.html')
