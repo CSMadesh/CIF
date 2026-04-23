@@ -1,7 +1,7 @@
-<!-- home/js/bg_canvas.html -->
+<!-- home/js/auth_canvas.html -->
 <script>
 (function(){
-  const canvas = document.getElementById('bgCanvas');
+  const canvas = document.getElementById('authCanvas');
   if(!canvas) return;
   const ctx = canvas.getContext('2d');
   let W, H;
@@ -10,20 +10,20 @@
   resize();
   window.addEventListener('resize', resize);
 
-  /* Silver rings only */
-  const rings = Array.from({length:6}, () => ({
+  /* Silver rings */
+  const rings = Array.from({length:5}, () => ({
     x: Math.random()*window.innerWidth,
     y: Math.random()*window.innerHeight,
-    r: 35 + Math.random()*80,
-    vx: (Math.random()-0.5)*0.18,
-    vy: (Math.random()-0.5)*0.18,
+    r: 30 + Math.random()*70,
+    vx: (Math.random()-0.5)*0.15,
+    vy: (Math.random()-0.5)*0.15,
     a: 0.04 + Math.random()*0.06,
     p: Math.random()*Math.PI*2,
-    pv: 0.006,
+    pv: 0.007,
   }));
 
   /* Constellation dots */
-  const dots = Array.from({length:80}, () => ({
+  const dots = Array.from({length:70}, () => ({
     x: Math.random()*window.innerWidth,
     y: Math.random()*window.innerHeight,
     vx: (Math.random()-0.5)*0.12,
@@ -34,10 +34,15 @@
     pv: 0.01 + Math.random()*0.015,
   }));
 
-  const CDIST = 120;
+  const CDIST = 110;
 
   function loop(){
     ctx.clearRect(0,0,W,H);
+
+    /* bg */
+    const bg = ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,Math.max(W,H)*0.85);
+    bg.addColorStop(0,'rgba(10,10,14,1)'); bg.addColorStop(1,'rgba(0,0,0,1)');
+    ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
 
     /* rings */
     rings.forEach(ring=>{
@@ -73,6 +78,11 @@
       ctx.beginPath(); ctx.arc(d.x,d.y,d.r,0,Math.PI*2);
       ctx.fillStyle=`rgba(220,225,240,${a})`; ctx.fill();
     });
+
+    /* vignette */
+    const vg=ctx.createRadialGradient(W/2,H/2,H*0.1,W/2,H/2,H*0.9);
+    vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(0,0,0,0.6)');
+    ctx.fillStyle=vg; ctx.fillRect(0,0,W,H);
 
     requestAnimationFrame(loop);
   }

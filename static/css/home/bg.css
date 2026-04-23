@@ -1,0 +1,303 @@
+/* home/bg.css — Premium Classical Background */
+
+/* ── Base wrap ── */
+.hw {
+  min-height: 100vh;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Deep background gradient ── */
+.hw::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 30%, rgba(18,14,10,1) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 70%, rgba(12,10,16,1) 0%, transparent 60%),
+    linear-gradient(160deg, #0a0a0a 0%, #050505 50%, #080808 100%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ── Subtle warm vignette ── */
+.hw::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.7) 100%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ── Canvas (sparkles) ── */
+#bgCanvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+}
+
+/* ══════════════════════════════════════════
+   CLASSICAL ORNAMENTAL LAYER
+   Pure CSS — no canvas
+══════════════════════════════════════════ */
+
+/* Ornament container */
+.hw-ornaments {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  overflow: hidden;
+}
+
+/* ── Floating botanical leaf ── */
+.hw-leaf {
+  position: absolute;
+  opacity: 0;
+  animation: leafFloat linear infinite;
+}
+.hw-leaf::before,
+.hw-leaf::after {
+  content: '';
+  position: absolute;
+  border-radius: 50% 0 50% 0;
+}
+/* leaf shape */
+.hw-leaf::before {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg,
+    rgba(255,255,255,0.06) 0%,
+    rgba(255,255,255,0.02) 50%,
+    transparent 100%);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 50% 0 50% 0;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
+}
+/* leaf vein */
+.hw-leaf::after {
+  width: 1px;
+  height: 80%;
+  background: linear-gradient(180deg, transparent, rgba(255,255,255,0.12), transparent);
+  top: 10%;
+  left: 50%;
+  border-radius: 0;
+}
+
+.hw-leaf-1  { width:40px; height:60px; left:5%;   animation-duration:18s; animation-delay:0s;   }
+.hw-leaf-2  { width:28px; height:44px; left:12%;  animation-duration:22s; animation-delay:-4s;  }
+.hw-leaf-3  { width:50px; height:72px; left:22%;  animation-duration:16s; animation-delay:-8s;  }
+.hw-leaf-4  { width:34px; height:52px; left:35%;  animation-duration:20s; animation-delay:-2s;  }
+.hw-leaf-5  { width:44px; height:66px; left:48%;  animation-duration:24s; animation-delay:-6s;  }
+.hw-leaf-6  { width:30px; height:46px; left:58%;  animation-duration:17s; animation-delay:-10s; }
+.hw-leaf-7  { width:48px; height:70px; left:68%;  animation-duration:21s; animation-delay:-3s;  }
+.hw-leaf-8  { width:36px; height:54px; left:78%;  animation-duration:19s; animation-delay:-7s;  }
+.hw-leaf-9  { width:42px; height:62px; left:88%;  animation-duration:23s; animation-delay:-1s;  }
+.hw-leaf-10 { width:26px; height:40px; left:95%;  animation-duration:15s; animation-delay:-9s;  }
+
+@keyframes leafFloat {
+  0%   { transform: translateY(110vh) rotate(0deg)   translateX(0);   opacity: 0; }
+  5%   { opacity: 0.6; }
+  50%  { transform: translateY(50vh)  rotate(180deg) translateX(30px); opacity: 0.4; }
+  95%  { opacity: 0.3; }
+  100% { transform: translateY(-10vh) rotate(360deg) translateX(-20px); opacity: 0; }
+}
+
+/* ── Classical ornamental circles ── */
+.hw-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.06);
+  animation: ringPulse ease-in-out infinite;
+}
+.hw-ring::before {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.04);
+}
+.hw-ring::after {
+  content: '';
+  position: absolute;
+  inset: 18px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.025);
+}
+
+.hw-ring-1 { width:300px; height:300px; top:-80px;  left:-80px;  animation-duration:12s; animation-delay:0s;  }
+.hw-ring-2 { width:200px; height:200px; top:20%;    right:-60px; animation-duration:16s; animation-delay:-4s; }
+.hw-ring-3 { width:400px; height:400px; bottom:-120px; left:30%; animation-duration:20s; animation-delay:-8s; }
+.hw-ring-4 { width:160px; height:160px; top:60%;    left:5%;     animation-duration:14s; animation-delay:-2s; }
+.hw-ring-5 { width:240px; height:240px; top:10%;    left:40%;    animation-duration:18s; animation-delay:-6s; }
+
+@keyframes ringPulse {
+  0%,100% { transform: scale(1);    opacity: 0.5; }
+  50%     { transform: scale(1.06); opacity: 0.9; }
+}
+
+/* ── Classical diamond ornaments ── */
+.hw-diamond {
+  position: absolute;
+  animation: diamondSpin linear infinite;
+}
+.hw-diamond::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg,
+    rgba(255,255,255,0.08) 0%,
+    rgba(255,255,255,0.02) 50%,
+    rgba(255,255,255,0.06) 100%);
+  border: 1px solid rgba(255,255,255,0.1);
+  transform: rotate(45deg);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.15),
+    0 0 20px rgba(255,255,255,0.03);
+}
+.hw-diamond::after {
+  content: '';
+  position: absolute;
+  width: 40%;
+  height: 40%;
+  top: 30%;
+  left: 30%;
+  background: rgba(255,255,255,0.06);
+  transform: rotate(45deg);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.hw-diamond-1 { width:24px; height:24px; top:15%;  left:8%;   animation-duration:20s; animation-delay:0s;   opacity:0.7; }
+.hw-diamond-2 { width:16px; height:16px; top:35%;  left:92%;  animation-duration:25s; animation-delay:-5s;  opacity:0.5; }
+.hw-diamond-3 { width:30px; height:30px; top:65%;  left:15%;  animation-duration:18s; animation-delay:-10s; opacity:0.6; }
+.hw-diamond-4 { width:20px; height:20px; top:80%;  left:75%;  animation-duration:22s; animation-delay:-3s;  opacity:0.5; }
+.hw-diamond-5 { width:14px; height:14px; top:45%;  left:50%;  animation-duration:30s; animation-delay:-8s;  opacity:0.4; }
+.hw-diamond-6 { width:26px; height:26px; top:25%;  left:65%;  animation-duration:16s; animation-delay:-12s; opacity:0.6; }
+
+@keyframes diamondSpin {
+  0%   { transform: rotate(0deg)   translateY(0); }
+  25%  { transform: rotate(90deg)  translateY(-8px); }
+  50%  { transform: rotate(180deg) translateY(0); }
+  75%  { transform: rotate(270deg) translateY(8px); }
+  100% { transform: rotate(360deg) translateY(0); }
+}
+
+/* ── Horizontal classical divider lines ── */
+.hw-divline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255,255,255,0.04) 20%,
+    rgba(255,255,255,0.08) 50%,
+    rgba(255,255,255,0.04) 80%,
+    transparent 100%);
+  animation: divlineShimmer 8s ease-in-out infinite;
+}
+.hw-divline-1 { top: 25%; animation-delay: 0s;  }
+.hw-divline-2 { top: 50%; animation-delay: -3s; }
+.hw-divline-3 { top: 75%; animation-delay: -6s; }
+
+@keyframes divlineShimmer {
+  0%,100% { opacity: 0.4; transform: scaleX(0.8); }
+  50%     { opacity: 1;   transform: scaleX(1); }
+}
+
+/* ── Floating classical dots (constellation) ── */
+.hw-dot {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 70%);
+  animation: dotTwinkle ease-in-out infinite;
+}
+.hw-dot-1  { width:3px;  height:3px;  top:10%; left:20%; animation-duration:3s;  animation-delay:0s;    }
+.hw-dot-2  { width:2px;  height:2px;  top:20%; left:45%; animation-duration:4s;  animation-delay:-1s;   }
+.hw-dot-3  { width:4px;  height:4px;  top:30%; left:70%; animation-duration:2.5s;animation-delay:-0.5s; }
+.hw-dot-4  { width:2px;  height:2px;  top:40%; left:15%; animation-duration:5s;  animation-delay:-2s;   }
+.hw-dot-5  { width:3px;  height:3px;  top:55%; left:85%; animation-duration:3.5s;animation-delay:-1.5s; }
+.hw-dot-6  { width:2px;  height:2px;  top:65%; left:35%; animation-duration:4.5s;animation-delay:-0.8s; }
+.hw-dot-7  { width:4px;  height:4px;  top:75%; left:60%; animation-duration:2.8s;animation-delay:-2.5s; }
+.hw-dot-8  { width:2px;  height:2px;  top:85%; left:25%; animation-duration:3.8s;animation-delay:-1.2s; }
+.hw-dot-9  { width:3px;  height:3px;  top:15%; left:80%; animation-duration:4.2s;animation-delay:-0.3s; }
+.hw-dot-10 { width:2px;  height:2px;  top:90%; left:55%; animation-duration:3.2s;animation-delay:-1.8s; }
+.hw-dot-11 { width:5px;  height:5px;  top:5%;  left:50%; animation-duration:2.2s;animation-delay:-0.6s; }
+.hw-dot-12 { width:2px;  height:2px;  top:48%; left:92%; animation-duration:5.5s;animation-delay:-3s;   }
+
+@keyframes dotTwinkle {
+  0%,100% { opacity: 0.2; transform: scale(1); }
+  50%     { opacity: 1;   transform: scale(1.8); box-shadow: 0 0 6px rgba(255,255,255,0.5); }
+}
+
+/* ── Corner ornamental flourishes ── */
+.hw-corner {
+  position: fixed;
+  width: 120px;
+  height: 120px;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0.12;
+}
+.hw-corner::before,
+.hw-corner::after {
+  content: '';
+  position: absolute;
+  background: transparent;
+}
+/* top-left */
+.hw-corner-tl { top: 0; left: 0; }
+.hw-corner-tl::before {
+  width: 80px; height: 1px;
+  top: 20px; left: 20px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.5), transparent);
+}
+.hw-corner-tl::after {
+  width: 1px; height: 80px;
+  top: 20px; left: 20px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.5), transparent);
+}
+/* top-right */
+.hw-corner-tr { top: 0; right: 0; }
+.hw-corner-tr::before {
+  width: 80px; height: 1px;
+  top: 20px; right: 20px;
+  background: linear-gradient(270deg, rgba(255,255,255,0.5), transparent);
+}
+.hw-corner-tr::after {
+  width: 1px; height: 80px;
+  top: 20px; right: 20px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.5), transparent);
+}
+/* bottom-left */
+.hw-corner-bl { bottom: 0; left: 0; }
+.hw-corner-bl::before {
+  width: 80px; height: 1px;
+  bottom: 20px; left: 20px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.5), transparent);
+}
+.hw-corner-bl::after {
+  width: 1px; height: 80px;
+  bottom: 20px; left: 20px;
+  background: linear-gradient(0deg, rgba(255,255,255,0.5), transparent);
+}
+/* bottom-right */
+.hw-corner-br { bottom: 0; right: 0; }
+.hw-corner-br::before {
+  width: 80px; height: 1px;
+  bottom: 20px; right: 20px;
+  background: linear-gradient(270deg, rgba(255,255,255,0.5), transparent);
+}
+.hw-corner-br::after {
+  width: 1px; height: 80px;
+  bottom: 20px; right: 20px;
+  background: linear-gradient(0deg, rgba(255,255,255,0.5), transparent);
+}

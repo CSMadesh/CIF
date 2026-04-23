@@ -2,17 +2,19 @@
 {% block title %}Create Account – IXOVA{% endblock %}
 {% block content %}
 
-<div class="auth3d-page">
-  <div class="ai-grid"></div>
-  <div class="ai-orb ai-orb-1"></div>
-  <div class="ai-orb ai-orb-2"></div>
+<div class="auth3d-page" id="authPage" style="align-items:flex-start;padding:32px 0;">
+  <canvas id="authCanvas"></canvas>
 
-  <div class="auth3d-scene">
-    <div class="auth3d-card">
+  <div class="auth3d-scene" id="authScene">
+    <div class="auth3d-card" id="authCard">
       <div class="auth3d-topbar"></div>
+      <div class="ac-inner-glow"></div>
+
       <div class="auth3d-logo">IXOVA</div>
       <p class="auth3d-subtitle">Join thousands of students growing their careers</p>
-      <div class="auth3d-ornament"><span></span><span class="diamond">◆</span><span></span></div>
+      <div class="auth3d-ornament">
+        <span></span><span class="diamond">◆</span><span></span>
+      </div>
 
       {% if messages %}
         {% for msg in messages %}
@@ -20,38 +22,56 @@
         {% endfor %}
       {% endif %}
 
-      <form method="post">
+      <form method="post" id="registerForm" novalidate>
         {% csrf_token %}
+
         <div class="auth3d-group">
-          <label class="auth3d-label">Full Name</label>
-          <div class="auth3d-input-wrap">
+          <label class="auth3d-label" for="id_first_name">Full Name</label>
+          <div class="auth3d-input-wrap" id="wrap-first_name">
             <span class="auth3d-icon">✨</span>
-            <input type="text" name="first_name" class="auth3d-input" placeholder="Your full name" value="{{ form_data.first_name }}" required autofocus>
+            <input id="id_first_name" type="text" name="first_name"
+                   class="auth3d-input" placeholder="Your full name"
+                   value="{{ form_data.first_name }}" required autofocus>
           </div>
         </div>
+
         <div class="auth3d-group">
-          <label class="auth3d-label">Username</label>
-          <div class="auth3d-input-wrap">
+          <label class="auth3d-label" for="id_username">Username</label>
+          <div class="auth3d-input-wrap" id="wrap-username">
             <span class="auth3d-icon">👤</span>
-            <input type="text" name="username" class="auth3d-input" placeholder="Choose a username" value="{{ form_data.username }}" required>
+            <input id="id_username" type="text" name="username"
+                   class="auth3d-input" placeholder="Choose a username"
+                   value="{{ form_data.username }}" required autocomplete="username">
           </div>
         </div>
+
         <div class="auth3d-group">
-          <label class="auth3d-label">Email</label>
-          <div class="auth3d-input-wrap">
+          <label class="auth3d-label" for="id_email">Email</label>
+          <div class="auth3d-input-wrap" id="wrap-email">
             <span class="auth3d-icon">📧</span>
-            <input type="email" name="email" class="auth3d-input" placeholder="your@email.com" value="{{ form_data.email }}" required>
+            <input id="id_email" type="email" name="email"
+                   class="auth3d-input" placeholder="your@email.com"
+                   value="{{ form_data.email }}" required autocomplete="email">
           </div>
         </div>
+
         <div class="auth3d-group">
-          <label class="auth3d-label">Password</label>
-          <div class="auth3d-input-wrap">
+          <label class="auth3d-label" for="id_password">Password</label>
+          <div class="auth3d-input-wrap" id="wrap-password">
             <span class="auth3d-icon">🔒</span>
-            <input type="password" name="password" class="auth3d-input" placeholder="Create a strong password" required>
+            <input id="id_password" type="password" name="password"
+                   class="auth3d-input" placeholder="Create a strong password"
+                   required autocomplete="new-password">
+            <button type="button" class="auth-eye" id="togglePwd" tabindex="-1">👁</button>
           </div>
+          <div class="pwd-strength-bar">
+            <div class="pwd-strength-fill" id="pwdFill"></div>
+          </div>
+          <div class="pwd-strength-label" id="pwdLabel"></div>
         </div>
-        <button type="submit" class="auth3d-btn">
-          <span>Create Account</span>
+
+        <button type="submit" class="auth3d-btn" id="registerBtn">
+          <span class="auth3d-btn-text">Create Account</span>
           <span class="auth3d-btn-shine"></span>
         </button>
       </form>
@@ -63,18 +83,135 @@
   </div>
 </div>
 
+{% include 'home/js/auth_canvas.html' %}
+
 <script>
-const card = document.querySelector('.auth3d-card');
-const scene = document.querySelector('.auth3d-scene');
-if (scene && card) {
-  scene.addEventListener('mousemove', (e) => {
-    const r = card.getBoundingClientRect();
-    const dx = (e.clientX - r.left - r.width/2) / (r.width/2);
-    const dy = (e.clientY - r.top - r.height/2) / (r.height/2);
-    card.style.transform = `rotateY(${dx*6}deg) rotateX(${-dy*6}deg) translateY(-4px)`;
+/* ── Spring 3D tilt ── */
+(function(){
+  const card=document.getElementById('authCard');
+  const scene=document.getElementById('authScene');
+  if(!card||!scene) return;
+  let tx=0,ty=0,cx=0,cy=0,vx=0,vy=0;
+  const SPRING=0.1,DAMP=0.72,MAX=10;
+  scene.addEventListener('mousemove',e=>{
+    const r=card.getBoundingClientRect();
+    cx=((e.clientX-r.left-r.width/2)/(r.width/2))*MAX;
+    cy=((e.clientY-r.top-r.height/2)/(r.height/2))*MAX;
   });
-  scene.addEventListener('mouseleave', () => { card.style.transform = ''; });
-}
+  scene.addEventListener('mouseleave',()=>{cx=0;cy=0;});
+  (function tick(){
+    vx+=(cx-tx)*SPRING; vy+=(cy-ty)*SPRING;
+    vx*=DAMP; vy*=DAMP; tx+=vx; ty+=vy;
+    const d=Math.sqrt(tx*tx+ty*ty)/MAX;
+    card.style.transform=`rotateY(${tx}deg) rotateX(${-ty}deg) translateZ(${8+d*22}px)`;
+    card.style.boxShadow=`${-tx*2.5}px ${-ty*2.5}px 90px rgba(0,0,0,0.88),`+
+      `0 0 50px rgba(255,255,255,${0.015+d*0.04}),`+
+      `inset 0 1px 0 rgba(255,255,255,${0.1+d*0.1})`;
+    requestAnimationFrame(tick);
+  })();
+})();
+
+/* ── Input validation ── */
+(function(){
+  const rules={
+    'id_first_name': v=>v.trim().length>=2,
+    'id_username':   v=>/^[a-zA-Z0-9_]{3,}$/.test(v.trim()),
+    'id_email':      v=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()),
+    'id_password':   v=>v.length>=8,
+  };
+  Object.keys(rules).forEach(id=>{
+    const inp=document.getElementById(id);
+    if(!inp) return;
+    const wrap=inp.closest('.auth3d-input-wrap');
+    inp.addEventListener('blur',()=>{
+      if(!inp.value){ wrap.classList.remove('valid','invalid'); return; }
+      const ok=rules[id](inp.value);
+      wrap.classList.toggle('valid',ok);
+      wrap.classList.toggle('invalid',!ok);
+    });
+    inp.addEventListener('input',()=>{
+      if(wrap.classList.contains('invalid')&&rules[id](inp.value)){
+        wrap.classList.remove('invalid'); wrap.classList.add('valid');
+      }
+    });
+  });
+})();
+
+/* ── Password toggle ── */
+(function(){
+  const btn=document.getElementById('togglePwd');
+  const inp=document.getElementById('id_password');
+  if(!btn||!inp) return;
+  btn.addEventListener('click',()=>{
+    const show=inp.type==='password';
+    inp.type=show?'text':'password';
+    btn.textContent=show?'🙈':'👁';
+    inp.focus();
+  });
+})();
+
+/* ── Password strength ── */
+(function(){
+  const inp=document.getElementById('id_password');
+  const fill=document.getElementById('pwdFill');
+  const lbl=document.getElementById('pwdLabel');
+  if(!inp||!fill||!lbl) return;
+  const levels=[
+    {pct:0,   color:'transparent',            text:'',       cls:''},
+    {pct:22,  color:'rgba(248,113,113,0.85)',  text:'Weak',   cls:'weak'},
+    {pct:48,  color:'rgba(251,146,60,0.85)',   text:'Fair',   cls:'fair'},
+    {pct:72,  color:'rgba(250,204,21,0.85)',   text:'Good',   cls:'good'},
+    {pct:100, color:'rgba(74,222,128,0.85)',   text:'Strong', cls:'strong'},
+  ];
+  inp.addEventListener('input',()=>{
+    const v=inp.value;
+    let s=0;
+    if(v.length>=6)  s++;
+    if(v.length>=10) s++;
+    if(/[A-Z]/.test(v)) s++;
+    if(/[0-9]/.test(v)) s++;
+    if(/[^A-Za-z0-9]/.test(v)) s++;
+    const idx=!v?0:s<=1?1:s<=2?2:s<=3?3:4;
+    const lvl=levels[idx];
+    fill.style.width=lvl.pct+'%';
+    fill.style.background=lvl.color;
+    lbl.textContent=lvl.text;
+    lbl.style.color=lvl.color;
+    lbl.classList.toggle('visible',!!lvl.text);
+  });
+})();
+
+/* ── Submit loading ── */
+(function(){
+  const form=document.getElementById('registerForm');
+  const btn=document.getElementById('registerBtn');
+  if(!form||!btn) return;
+  form.addEventListener('submit',()=>{
+    btn.classList.add('loading');
+    btn.disabled=true;
+  });
+})();
+
+/* ── Ripple on button click ── */
+(function(){
+  const btn=document.getElementById('registerBtn');
+  if(!btn) return;
+  btn.addEventListener('click',function(e){
+    const r=btn.getBoundingClientRect();
+    const rip=document.createElement('span');
+    const size=Math.max(r.width,r.height)*2;
+    rip.style.cssText=`position:absolute;width:${size}px;height:${size}px;`+
+      `left:${e.clientX-r.left-size/2}px;top:${e.clientY-r.top-size/2}px;`+
+      `border-radius:50%;background:rgba(255,255,255,0.1);`+
+      `transform:scale(0);animation:rippleAnim 0.6s ease forwards;pointer-events:none;`;
+    btn.appendChild(rip);
+    setTimeout(()=>rip.remove(),700);
+  });
+})();
 </script>
+
+<style>
+@keyframes rippleAnim { to { transform:scale(1); opacity:0; } }
+</style>
 
 {% endblock %}
