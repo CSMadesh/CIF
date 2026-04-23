@@ -1,8 +1,7 @@
 /* ═══════════════════════════════════════════
    IXOVA — CLASSICAL DESIGN TOKENS
-   Palette: Deep Navy · Gold · Burgundy · Emerald
    ═══════════════════════════════════════════ */
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+/* Fonts loaded via <link> in base.html for non-blocking load */
 
 :root {
   /* ── Classical Palette ── */

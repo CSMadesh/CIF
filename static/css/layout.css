@@ -16,6 +16,7 @@
   z-index: 100;
   box-shadow: 4px 0 32px rgba(0,0,0,0.25);
   overflow: hidden;
+  will-change: transform;
 }
 
 /* Gold shimmer line on sidebar */
@@ -126,6 +127,7 @@
   background: var(--bg-2);
   position:relative;
   transition: background 0.35s ease;
+  contain: layout style;
 }
 .main::before {
   content:'';

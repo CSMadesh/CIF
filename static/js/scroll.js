@@ -1,20 +1,27 @@
 /* ═══════════════════════════════════════════
-   IXOVA — SCROLL & PAGE TRANSITION JS
+   IXOVA — SCROLL ANIMATIONS (fast)
    ═══════════════════════════════════════════ */
-
 (function () {
 
-  /* ── Scroll progress bar ── */
-  var bar = document.getElementById('scrollProgress');
+  /* ── Scroll progress bar (passive, throttled) ── */
+  var bar  = document.getElementById('scrollProgress');
+  var ticking = false;
   if (bar) {
     window.addEventListener('scroll', function () {
-      var scrolled = window.scrollY;
-      var total = document.documentElement.scrollHeight - window.innerHeight;
-      bar.style.width = (total > 0 ? (scrolled / total) * 100 : 0) + '%';
+      if (!ticking) {
+        requestAnimationFrame(function () {
+          var total = document.documentElement.scrollHeight - window.innerHeight;
+          bar.style.width = (total > 0 ? (window.scrollY / total) * 100 : 0) + '%';
+          ticking = false;
+        });
+        ticking = true;
+      }
     }, { passive: true });
   }
 
-  /* ── IntersectionObserver for .reveal elements ── */
+  /* ── IntersectionObserver reveal ── */
+  if (!window.IntersectionObserver) return;
+
   var observer = new IntersectionObserver(function (entries) {
     entries.forEach(function (entry) {
       if (entry.isIntersecting) {
@@ -22,70 +29,61 @@
         observer.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+  }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
 
-  function initReveal() {
-    document.querySelectorAll('.reveal').forEach(function (el) {
-      observer.observe(el);
-    });
-  }
-  initReveal();
+  /* Auto-tag elements once DOM ready */
+  var AUTO_SELECTORS = [
+    '.card', '.stat-card', '.opp-card', '.tip-item',
+    '.section-header', '.profile-header', '.quote-card',
+    '.home-feature', '.page-header'
+  ];
 
-  /* ── Auto-tag common elements for reveal ── */
-  function autoTag() {
-    var selectors = [
-      '.card', '.stat-card', '.opp-card',
-      '.tip-item', '.section-header',
-      '.profile-header', '.quote-card',
-      '.home-feature', '.home-stat',
-      '.sa-table', '.page-header'
-    ];
-    selectors.forEach(function (sel) {
+  function tagAndObserve() {
+    AUTO_SELECTORS.forEach(function (sel) {
       document.querySelectorAll(sel).forEach(function (el, i) {
         if (!el.classList.contains('reveal')) {
           el.classList.add('reveal', 'reveal-d' + Math.min(i + 1, 6));
-          observer.observe(el);
         }
+        observer.observe(el);
       });
     });
+    /* Also observe any manually tagged .reveal elements */
+    document.querySelectorAll('.reveal:not(.visible)').forEach(function (el) {
+      observer.observe(el);
+    });
   }
-  autoTag();
 
-  /* ── Smooth page transition on internal links ── */
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', tagAndObserve);
+  } else {
+    tagAndObserve();
+  }
+
+  /* ── Fast page transition (no delay — just a quick fade) ── */
   var overlay = document.getElementById('pageTransition');
   if (overlay) {
-    document.querySelectorAll('a[href]').forEach(function (link) {
+    /* Fade OUT on page load — instant */
+    overlay.style.transition = 'opacity 0.15s ease';
+    overlay.style.opacity = '0';
+    overlay.style.pointerEvents = 'none';
+
+    /* Fade IN on link click — only 150ms then navigate */
+    document.addEventListener('click', function (e) {
+      var link = e.target.closest('a[href]');
+      if (!link) return;
       var href = link.getAttribute('href');
-      /* skip external, anchor, javascript links */
       if (!href || href.startsWith('http') || href.startsWith('#') ||
-          href.startsWith('javascript') || href.startsWith('mailto')) return;
+          href.startsWith('javascript') || href.startsWith('mailto') ||
+          href.startsWith('tel') || link.target === '_blank') return;
 
-      link.addEventListener('click', function (e) {
-        e.preventDefault();
-        var target = href;
-        overlay.classList.add('active');
-        setTimeout(function () {
-          window.location.href = target;
-        }, 320);
-      });
-    });
-
-    /* Fade in on page load */
-    overlay.classList.add('active');
-    window.addEventListener('load', function () {
+      e.preventDefault();
+      overlay.style.opacity = '1';
+      overlay.style.pointerEvents = 'all';
+      /* Navigate after just 150ms — feels instant but still smooth */
       setTimeout(function () {
-        overlay.classList.remove('active');
-      }, 80);
+        window.location.href = href;
+      }, 150);
     });
   }
-
-  /* ── Parallax on hero orbs ── */
-  window.addEventListener('scroll', function () {
-    var sy = window.scrollY;
-    document.querySelectorAll('.home-bg-orb').forEach(function (orb, i) {
-      var speed = i % 2 === 0 ? 0.15 : -0.1;
-      orb.style.transform = 'translateY(' + (sy * speed) + 'px)';
-    });
-  }, { passive: true });
 
 })();
