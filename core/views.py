@@ -592,12 +592,6 @@ def forgot_password(request):
         otp = ''.join(random.choices(string.digits, k=6))
 
         try:
-            # Verify email is configured before attempting to send
-            if not django_settings.EMAIL_HOST_USER or not django_settings.EMAIL_HOST_PASSWORD:
-                _log.error(f'Email not configured: EMAIL_HOST_USER or EMAIL_HOST_PASSWORD missing')
-                messages.error(request, 'Email service is not properly configured. Please contact support.')
-                return render(request, 'forgot_password.html')
-            
             send_mail(
                 subject='IXOVA — Your Password Reset OTP',
                 message=(
@@ -614,8 +608,9 @@ def forgot_password(request):
             )
             _log.info(f'OTP email sent successfully to {user.email}')
         except Exception as e:
-            _log.error(f'OTP email failed for {email}: {str(e)}')
-            messages.error(request, f'Could not send email: {str(e)[:100]}. Please try again later.')
+            error_msg = str(e)
+            _log.error(f'OTP email failed for {email}: {error_msg}')
+            messages.error(request, f'Could not send email. Please try again later.')
             return render(request, 'forgot_password.html')
 
         PasswordResetOTP.objects.filter(user=user, is_used=False).update(is_used=True)

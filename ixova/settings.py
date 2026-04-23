@@ -4,7 +4,11 @@ import dj_database_url
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv(BASE_DIR / '.env')
+env_file = os.path.join(BASE_DIR, '.env')
+if os.path.exists(env_file):
+    load_dotenv(env_file)
+else:
+    print(f"WARNING: .env file not found at {env_file}")
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-8!ymj(2%_tm1&476fbi!sr&@^u+wbk0_*g*l@)7cgl+_%2m&g$')
 
@@ -96,6 +100,11 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = os.environ.get('EMAIL_HOST_USER', 'noreply@ixova.app')
+
+# Debug: Check if email is configured
+if DEBUG:
+    print(f"DEBUG: EMAIL_HOST_USER = {EMAIL_HOST_USER if EMAIL_HOST_USER else 'NOT SET'}")
+    print(f"DEBUG: EMAIL_HOST_PASSWORD = {'***' if EMAIL_HOST_PASSWORD else 'NOT SET'}")
 
 # Always use SMTP backend for production (console backend is only for testing)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
