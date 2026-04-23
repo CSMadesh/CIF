@@ -7,9 +7,7 @@ venv/
 env/
 *.log
 .DS_Store
-staticfiles_build/
 media/
-*.md
 DESIGN_SYSTEM.md
 schema.sql
 seed.py
