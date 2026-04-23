@@ -90,21 +90,15 @@ LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
 
 # ── Email (SMTP) ──
-_email_user = os.environ.get('EMAIL_HOST_USER', '')
-_email_pass = os.environ.get('EMAIL_HOST_PASSWORD', '')
-_email_configured = bool(_email_user and _email_pass)
-
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = _email_user
-EMAIL_HOST_PASSWORD = _email_pass
-DEFAULT_FROM_EMAIL = _email_user if _email_user else 'noreply@ixova.app'
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = os.environ.get('EMAIL_HOST_USER', 'noreply@ixova.app')
 
-if _email_configured:
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-else:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Always use SMTP backend for production (console backend is only for testing)
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
