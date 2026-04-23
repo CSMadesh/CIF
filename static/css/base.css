@@ -13,7 +13,6 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
-  transition: background 0.35s ease, color 0.35s ease;
 }
 
 /* ── Ornamental scrollbar ── */
@@ -35,10 +34,12 @@ a { text-decoration: none; color: inherit; }
   box-shadow: 0 0 0 4px rgba(201,168,76,0.15);
 }
 
-/* ── Global transitions ── */
-a,button,.nav-item,.card,.btn,.opp-card,.stat-card,
-.filter-tab,.badge,.form-control,.avatar,.profile-avatar-lg {
-  transition: var(--transition);
+/* ── Global transitions — only on interactive elements ── */
+.btn, .nav-item, .card, .opp-card, .stat-card, .filter-tab, .avatar {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+a, button, .badge, .form-control, .profile-avatar-lg {
+  transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
 }
 
 /* ══════════════════════════════════════════

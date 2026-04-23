@@ -6,7 +6,8 @@ from django.contrib import messages
 from django.db.models import Q
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-from django.views.decorators.cache import never_cache
+from django.views.decorators.cache import never_cache, cache_page
+from django.core.cache import cache
 from functools import wraps
 import json
 import random
@@ -124,11 +125,17 @@ def logout_view(request):
 @login_required
 def dashboard(request):
     profile, _ = Profile.objects.get_or_create(user=request.user)
-    # Only update profile_views — avoid full save
     Profile.objects.filter(pk=profile.pk).update(profile_views=profile.profile_views + 1)
     profile.profile_views += 1
 
-    trending     = Opportunity.objects.filter(is_trending=True).only('title', 'company', 'type', 'category', 'stipend', 'is_trending')[:6]
+    # Cache trending for 2 minutes
+    trending = cache.get('trending_opps')
+    if trending is None:
+        trending = list(Opportunity.objects.filter(is_trending=True).only(
+            'title', 'company', 'type', 'category', 'stipend', 'is_trending'
+        )[:6])
+        cache.set('trending_opps', trending, 120)
+
     saved_count  = SavedOpportunity.objects.filter(user=request.user).count()
     applications = Application.objects.filter(user=request.user).count()
     quote        = random.Random(date.today().toordinal()).choice(QUOTES)
@@ -151,7 +158,13 @@ def discover(request):
         opps = opps.filter(Q(title__icontains=query) | Q(company__icontains=query) | Q(category__icontains=query))
     if type_filter:
         opps = opps.filter(type=type_filter)
-    courses = Course.objects.only('title', 'category', 'duration', 'is_premium', 'thumbnail')[:6]
+
+    # Cache courses list for 5 minutes
+    courses = cache.get('courses_list')
+    if courses is None:
+        courses = list(Course.objects.only('title', 'category', 'duration', 'is_premium', 'thumbnail')[:6])
+        cache.set('courses_list', courses, 300)
+
     return render(request, 'discover.html', {
         'opportunities': opps,
         'courses': courses,

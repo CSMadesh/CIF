@@ -145,29 +145,25 @@ LOGOUT_REDIRECT_URL = '/'
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# ── Performance: Template caching in production ──
-if not DEBUG:
-    TEMPLATES[0]['APP_DIRS'] = False
-    TEMPLATES[0]['OPTIONS']['loaders'] = [
-        ('django.template.loaders.cached.Loader', [
-            'django.template.loaders.filesystem.Loader',
-            'django.template.loaders.app_directories.Loader',
-        ]),
-    ]
+# ── In-memory cache for fast repeated queries ──
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'ixova-cache',
+        'TIMEOUT': 300,
+    }
+}
 
 # ── Session optimization ──
 SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
-SESSION_COOKIE_AGE = 86400 * 7  # 7 days
+SESSION_COOKIE_AGE = 86400 * 7
 SESSION_SAVE_EVERY_REQUEST = False
-
-# ── Database connection pooling (already set via conn_max_age=600) ──
 
 # ── Static file compression ──
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # ── Security headers ──
 X_FRAME_OPTIONS = 'SAMEORIGIN'
-CONTENT_SECURITY_POLICY = False  # handled by whitenoise
 
 # Cloudinary Configuration
 import cloudinary
