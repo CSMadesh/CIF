@@ -23,6 +23,8 @@
     "CLOUDINARY_API_KEY": "198418245786499",
     "CLOUDINARY_API_SECRET": "OjigikzC9a7oZnfKcFSLU6hInLQ",
     "SECRET_KEY": "django-insecure-8!ymj(2%_tm1&476fbi!sr&@^u+wbk0_*g*l@)7cgl+_%2m&g$",
-    "DEBUG": "False"
+    "DEBUG": "False",
+    "EMAIL_HOST_USER": "madeshcs28@gmail.com",
+    "EMAIL_HOST_PASSWORD": "eddb mprf tjxq yaaf"
   }
 }
