@@ -3,7 +3,10 @@
   "builds": [
     {
       "src": "ixova/wsgi.py",
-      "use": "@vercel/python"
+      "use": "@vercel/python",
+      "config": {
+        "maxLambdaSize": "15mb"
+      }
     }
   ],
   "routes": [
@@ -11,5 +14,11 @@
       "src": "/(.*)",
       "dest": "ixova/wsgi.py"
     }
-  ]
+  ],
+  "env": {
+    "CLOUDINARY_CLOUD_NAME": "dlybd3iyz",
+    "CLOUDINARY_API_KEY": "198418245786499",
+    "CLOUDINARY_API_SECRET": "OjigikzC9a7oZnfKcFSLU6hInLQ",
+    "DEBUG": "False"
+  }
 }
